@@ -33,9 +33,30 @@ project(RP2040_IIC_DS3231_BMP_180 C CXX ASM)
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
+set(SOURCEDIR ${CMAKE_CURRENT_LIST_DIR}/src)
+set(INCLUDEDIR ${CMAKE_CURRENT_LIST_DIR}/include)
+
+set(SOURCES 
+${SOURCEDIR}/iic.cpp
+${SOURCEDIR}/ds3231.cpp
+${SOURCEDIR}/ds3231_common.cpp
+${SOURCEDIR}/ds3231_domain.cpp
+)
+
+set(INCLUDES 
+${INCLUDEDIR}/iic.h
+${INCLUDEDIR}/ds3231.h
+${INCLUDEDIR}/ds3231_registers.h
+${INCLUDEDIR}/ds3231_domain.h
+${INCLUDEDIR}/ds3231_common.h
+)
+
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(RP2040_IIC_DS3231_BMP_180 RP2040_IIC_DS3231_BMP_180.cpp ds3231.h ds3231_regs.h ds3231.cpp iic.h iic.cpp)
+add_executable(RP2040_IIC_DS3231_BMP_180 RP2040_IIC_DS3231_BMP_180.cpp ${INCLUDES} ${SOURCES})
+
+target_include_directories(RP2040_IIC_DS3231_BMP_180 PRIVATE ${SOURCEDIR})
+target_include_directories(RP2040_IIC_DS3231_BMP_180 PRIVATE ${INCLUDEDIR})
 
 pico_set_program_name(RP2040_IIC_DS3231_BMP_180 "RP2040_IIC_DS3231_BMP_180")
 pico_set_program_version(RP2040_IIC_DS3231_BMP_180 "0.1")

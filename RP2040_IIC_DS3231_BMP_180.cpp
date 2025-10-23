@@ -4,6 +4,7 @@
 #include "pico/stdlib.h"
 #include <cstring>
 #include <stdio.h>
+
 // I2C defines
 // This example will use I2C0 on GPIO8 (SDA) and GPIO9 (SCL) running at 400KHz.
 // Pins can be changed, see the GPIO function select table in the datasheet for information on GPIO assignments
@@ -11,11 +12,6 @@
 #define I2C_SDA 8
 #define I2C_SCL 9
 #define LED_PIN 25
-
-uint8_t format_time(uint8_t value)
-{
-    return ((value >> 4) & 0x0F) * 10 + (value & 0x0F);
-}
 
 const char *byte_to_binary(int x)
 {
@@ -48,13 +44,9 @@ int main()
 
     while (true)
     {
-        ds3231.read_register(0x00, 1);
-        uint8_t sec = format_time(ds3231.buffer()[1]);
-        ds3231.read_register(0x01, 1);
-        uint8_t min = format_time(ds3231.buffer()[1]);
-        ds3231.read_register(0x03, 1);
-        uint8_t hou = format_time(ds3231.buffer()[1]);
-        printf("sec(0x00): %i min(0x01): %i hour(0x03): %i\n", sec, min, hou);
+        auto datetime_f = ds3231.GetDateTime().AsFormatted();
+        printf("%s.%s.%s %s:%s:%s\n", datetime_f.day.c_str(), datetime_f.month.c_str(), datetime_f.year.c_str(),
+               datetime_f.hours.c_str(), datetime_f.minutes.c_str(), datetime_f.seconds.c_str());
         sleep_ms(1000);
     }
 }

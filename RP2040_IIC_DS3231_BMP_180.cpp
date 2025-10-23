@@ -12,6 +12,11 @@
 #define I2C_SCL 9
 #define LED_PIN 25
 
+uint8_t format_time(uint8_t value)
+{
+    return ((value >> 4) & 0x0F) * 10 + (value & 0x0F);
+}
+
 const char *byte_to_binary(int x)
 {
     static char buffer[9]; // 8 bits + null terminator
@@ -44,10 +49,12 @@ int main()
     while (true)
     {
         ds3231.read_register(0x00, 1);
-        uint8_t sec = ds3231.buffer()[1];
+        uint8_t sec = format_time(ds3231.buffer()[1]);
         ds3231.read_register(0x01, 1);
-        uint8_t min = ds3231.buffer()[1];
-        printf("sec(0x00): %i %s min(0x01): %i \n", sec, byte_to_binary(sec), min);
+        uint8_t min = format_time(ds3231.buffer()[1]);
+        ds3231.read_register(0x03, 1);
+        uint8_t hou = format_time(ds3231.buffer()[1]);
+        printf("sec(0x00): %i min(0x01): %i hour(0x03): %i\n", sec, min, hou);
         sleep_ms(1000);
     }
 }

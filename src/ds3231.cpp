@@ -25,6 +25,19 @@ void DS3231::write_register(uint8_t reg, uint8_t n_regs)
     i2c_write_blocking(i2c_, REGISTERS::ADDR, buffer, n_regs, false);
 }
 
+void DS3231::read_bulk_date_time_block()
+{
+    read_register(REGISTERS::SECOND, 7);
+    uint8_t reg_cnt = 0;
+    datetime_.seconds = decode_seconds(data_buffer_[reg_cnt++]);
+    datetime_.minutes = decode_minutes(data_buffer_[reg_cnt++]);
+    datetime_.hours = decode_hours(data_buffer_[reg_cnt++]);
+    datetime_.dow = decode_dow(data_buffer_[reg_cnt++]);
+    datetime_.day = decode_day(data_buffer_[reg_cnt++]);
+    datetime_.month = decode_month(data_buffer_[reg_cnt++]);
+    datetime_.year = decode_year(data_buffer_[reg_cnt]);
+}
+
 uint8_t DS3231::decode_seconds(uint8_t value)
 {
     return common::ByteBinDecToDec(value);
@@ -218,16 +231,7 @@ std::string DS3231::GetFormattedYear()
 
 domain::DateTime DS3231::GetDateTime()
 {
-    read_register(REGISTERS::SECOND, 7);
-    uint8_t reg_cnt = 0;
-    datetime_.seconds = decode_seconds(data_buffer_[reg_cnt++]);
-    datetime_.minutes = decode_minutes(data_buffer_[reg_cnt++]);
-    datetime_.hours = decode_hours(data_buffer_[reg_cnt++]);
-    datetime_.dow = decode_dow(data_buffer_[reg_cnt++]);
-    datetime_.day = decode_day(data_buffer_[reg_cnt++]);
-    // datetime_.month = decode_month(data_buffer_[reg_cnt++]);
-    datetime_.month = decode_month(data_buffer_[reg_cnt++]);
-    datetime_.year = decode_year(data_buffer_[reg_cnt]);
+    read_bulk_date_time_block();
     return datetime_;
 }
 

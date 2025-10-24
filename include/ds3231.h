@@ -46,6 +46,8 @@ class DS3231
     void read_register(uint8_t reg, uint8_t n_regs);
     void write_register(uint8_t reg, uint8_t n_regs);
 
+    void read_bulk_date_time_block();
+
     uint8_t decode_seconds(uint8_t value);
     uint8_t decode_minutes(uint8_t value);
     uint8_t decode_hours(uint8_t value);

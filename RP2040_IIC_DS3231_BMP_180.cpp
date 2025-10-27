@@ -1,6 +1,6 @@
-#include "ds3231.h"
+#include "ds3231/ds3231.h"
 #include "hardware/i2c.h"
-#include "iic.h"
+#include "i2c/i2c_entity.h"
 #include "pico/stdlib.h"
 #include <cstring>
 #include <stdio.h>
@@ -12,19 +12,6 @@
 #define I2C_SDA 8
 #define I2C_SCL 9
 #define LED_PIN 25
-
-const char *byte_to_binary(int x)
-{
-    static char buffer[9]; // 8 bits + null terminator
-    buffer[0] = '\0';
-
-    int z;
-    for (z = 128; z > 0; z >>= 1)
-    {
-        strcat(buffer, ((x & z) == z) ? "1" : "0");
-    }
-    return buffer;
-}
 
 int main()
 {
@@ -41,6 +28,8 @@ int main()
     sleep_ms(1000);
     gpio_put(LED_PIN, false);
     // For more examples of I2C use see https://github.com/raspberrypi/pico-examples/tree/master/i2c
+
+    // ds3231.set_hours_register(13, 0, 0).set_minutes_register(35).set_seconds_register(00);
 
     while (true)
     {

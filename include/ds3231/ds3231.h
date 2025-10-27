@@ -1,13 +1,13 @@
 #pragma once
 #include "ds3231_domain.h"
 #include "ds3231_registers.h"
-#include "hardware/i2c.h"
+#include "i2c/i2c_device.h"
 
 namespace DS3231
 {
 using namespace REGISTERS;
 
-class DS3231
+class DS3231 : public I2CDevice
 {
   public:
     DS3231(i2c_inst_t *i2c);
@@ -15,8 +15,6 @@ class DS3231
     DS3231() = delete;
     DS3231(const DS3231 &) = delete;
     DS3231(DS3231 &&) = delete;
-
-    const uint8_t *buffer();
 
     uint8_t GetSeconds();
     uint8_t GetMinutes();
@@ -33,18 +31,15 @@ class DS3231
     std::string GetFormattedMonth();
     std::string GetFormattedYear();
 
+    DS3231 &set_seconds_register(uint8_t value = 0);
+    DS3231 &set_minutes_register(uint8_t value = 0);
+    DS3231 &set_hours_register(uint8_t value = 0, uint8_t is_meridial = 0, uint8_t is_am = 0);
+
     domain::DateTime GetDateTime();
     const domain::DateTime &GetDateTimeConst();
 
   private:
-    i2c_inst_t *i2c_;
-
     domain::DateTime datetime_;
-
-    uint8_t data_buffer_[8u];
-
-    void read_register(uint8_t reg, uint8_t n_regs);
-    void write_register(uint8_t reg, uint8_t n_regs);
 
     void read_bulk_date_time_block();
 

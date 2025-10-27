@@ -24,8 +24,8 @@ struct DateTime
     uint8_t day = 0;
     uint8_t month = 0;
     uint8_t year = 0;
-    bool is_meridial = false;
-    bool is_am = false;
+    uint8_t is_meridial = 0;
+    uint8_t is_pm = 0;
     uint16_t age = 20;
 
     DateTimeFormatted AsFormatted();

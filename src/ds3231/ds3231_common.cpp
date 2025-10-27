@@ -1,4 +1,4 @@
-#include "ds3231_common.h"
+#include "ds3231/ds3231_common.h"
 
 namespace DS3231::common
 {
@@ -17,6 +17,10 @@ uint8_t ByteMaskLsn(uint8_t value)
 // Преобразование значения байта из десятичного в бинарно-десятичный
 uint8_t ByteDecToBinDec(uint8_t value)
 {
+    if (value == 0)
+    {
+        return 0;
+    }
     return (((value / 10u) << 4u) & 0xF0) | (value % 10u);
 }
 
@@ -39,7 +43,7 @@ std::string FormatDecWithLeadingZero(uint8_t value, uint8_t width = 2u)
         uint8_t symbol = value % 10u;
         result[result.size() - cnt++] = symbol + '0';
         value /= 10u;
-    } while (value);
+    } while (value > 0);
     return result;
 }
 std::string FormatDecWithLeadingZero(uint8_t value)

@@ -1,4 +1,4 @@
-#include "iic.h"
+#include "i2c/i2c_entity.h"
 
 I2C::I2C(i2c_inst_t *i2c, uint8_t scl_pin, uint8_t sda_pin)
 {

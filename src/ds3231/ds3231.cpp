@@ -25,12 +25,10 @@ uint8_t DS3231::decode_seconds(uint8_t value)
 {
     return common::ByteBinDecToDec(value);
 }
-
 uint8_t DS3231::decode_minutes(uint8_t value)
 {
     return common::ByteBinDecToDec(value);
 }
-
 uint8_t DS3231::decode_hours(uint8_t value)
 {
     datetime_.is_meridial = (value >> 6) & 0x01;
@@ -44,10 +42,9 @@ uint8_t DS3231::decode_hours(uint8_t value)
         return common::ByteBinDecToDec(value & 0x3F);
     }
 }
-
 uint8_t DS3231::decode_dow(uint8_t value)
 {
-    uint result;
+    uint8_t result;
     switch (value)
     {
     case 1: // вс
@@ -75,14 +72,12 @@ uint8_t DS3231::decode_dow(uint8_t value)
         result = 0;
         break;
     }
-    return 0;
+    return result;
 }
-
 uint8_t DS3231::decode_day(uint8_t value)
 {
     return common::ByteBinDecToDec(value);
 }
-
 uint8_t DS3231::decode_month(uint8_t value)
 {
     bool new_age = static_cast<bool>((value >> 7) & 0x01);
@@ -92,10 +87,64 @@ uint8_t DS3231::decode_month(uint8_t value)
     }
     return value & 0x1F;
 }
-
 uint8_t DS3231::decode_year(uint8_t value)
 {
     return common::ByteBinDecToDec(value);
+}
+
+uint8_t DS3231::encode_seconds()
+{
+    return common::ByteDecToBinDec(datetime_.seconds);
+}
+uint8_t DS3231::encode_minutes()
+{
+    return common::ByteDecToBinDec(datetime_.minutes);
+}
+uint8_t DS3231::encode_hours()
+{
+    return common::ByteDecToBinDec(datetime_.hours) |
+           (0b01100000 & ((datetime_.is_meridial << 6u) | (datetime_.is_pm << 5u)));
+}
+uint8_t DS3231::encode_dow()
+{
+    uint8_t result;
+    switch (datetime_.dow)
+    {
+    case 0:
+        result = 2;
+        break;
+    case 1:
+        result = 3;
+        break;
+    case 2:
+        result = 4;
+        break;
+    case 3:
+        result = 5;
+        break;
+    case 4:
+        result = 6;
+        break;
+    case 5:
+        result = 7;
+        break;
+    case 6:
+        result = 1;
+        break;
+    }
+    return result;
+}
+uint8_t DS3231::encode_day()
+{
+    return common::ByteDecToBinDec(datetime_.day);
+}
+uint8_t DS3231::encode_month()
+{
+    return datetime_.month;
+}
+uint8_t DS3231::encode_year()
+{
+    return common::ByteDecToBinDec(datetime_.year);
 }
 
 void DS3231::read_seconds_register()
@@ -103,37 +152,31 @@ void DS3231::read_seconds_register()
     I2CDevice::read_register(REGISTERS::SECOND, 1);
     datetime_.seconds = decode_seconds(I2CDevice::data_buffer_[0]);
 }
-
 void DS3231::read_minutes_register()
 {
     I2CDevice::read_register(REGISTERS::MINUTE, 1);
     datetime_.minutes = decode_minutes(I2CDevice::data_buffer_[0]);
 }
-
 void DS3231::read_hours_register()
 {
     I2CDevice::read_register(REGISTERS::HOUR, 1);
     datetime_.hours = decode_hours(I2CDevice::data_buffer_[0]);
 }
-
 void DS3231::read_dow_register()
 {
     I2CDevice::read_register(REGISTERS::DOW, 1);
     datetime_.dow = decode_dow(I2CDevice::data_buffer_[0]);
 }
-
 void DS3231::read_day_register()
 {
     I2CDevice::read_register(REGISTERS::DAY, 1);
     datetime_.day = decode_day(I2CDevice::data_buffer_[0]);
 }
-
 void DS3231::read_month_register()
 {
     I2CDevice::read_register(REGISTERS::MONTH, 1);
     datetime_.month = decode_month(I2CDevice::data_buffer_[0]);
 }
-
 void DS3231::read_year_register()
 {
     I2CDevice::read_register(REGISTERS::YEAR, 1);
@@ -142,31 +185,66 @@ void DS3231::read_year_register()
 
 DS3231 &DS3231::set_seconds_register(uint8_t value)
 {
-    datetime_.seconds = value;
-    I2CDevice::data_buffer_[0] = common::ByteDecToBinDec(datetime_.seconds);
+    datetime_.seconds = value % 60;
+    I2CDevice::data_buffer_[0] = encode_seconds();
     I2CDevice::write_register(REGISTERS::SECOND, 1u);
     return *this;
 }
-
 DS3231 &DS3231::set_minutes_register(uint8_t value)
 {
-    datetime_.minutes = value;
-    I2CDevice::data_buffer_[0] = common::ByteDecToBinDec(datetime_.minutes);
+    datetime_.minutes = value % 60;
+    I2CDevice::data_buffer_[0] = encode_minutes();
     I2CDevice::write_register(REGISTERS::MINUTE, 1u);
     return *this;
 }
-
 DS3231 &DS3231::set_hours_register(uint8_t value, uint8_t is_meridial, uint8_t is_am)
 {
-    datetime_.hours = is_meridial ? value % 13 : value;
+    if (is_meridial)
+    {
+        uint8_t meridial_value = value % 12;
+        if (meridial_value == 0)
+        {
+            meridial_value = 12;
+        }
+        datetime_.hours = meridial_value;
+    }
+    else
+    {
+        datetime_.hours = value % 24;
+    }
     datetime_.is_meridial = is_meridial;
     datetime_.is_pm = is_am;
-    I2CDevice::data_buffer_[0] = common::ByteDecToBinDec(datetime_.hours);
-    if (datetime_.is_meridial)
-    {
-        data_buffer_[0] |= 0b01100000 & ((datetime_.is_meridial << 6u) | (datetime_.is_pm << 5u));
-    }
+    I2CDevice::data_buffer_[0] = encode_hours();
     write_register(REGISTERS::HOUR, 1);
+    return *this;
+}
+DS3231 &DS3231::set_dow_register(uint8_t value)
+{
+    datetime_.dow = value % 7;
+    I2CDevice::data_buffer_[0] = encode_dow();
+    write_register(REGISTERS::DOW, 1);
+    return *this;
+}
+DS3231 &DS3231::set_day_register(uint8_t value)
+{
+    datetime_.day = std::min(uint8_t(31), value);
+    I2CDevice::data_buffer_[0] = encode_day();
+    write_register(REGISTERS::DAY, 1);
+    return *this;
+}
+DS3231 &DS3231::set_month_register(uint8_t value)
+{
+    datetime_.month = std::max(std::min(uint8_t(12u), value), uint8_t(1));
+    I2CDevice::data_buffer_[0] = datetime_.month;
+    write_register(REGISTERS::MONTH, 1);
+    return *this;
+}
+DS3231 &DS3231::set_year_register(uint16_t value)
+{
+    datetime_.age = value / 100;
+    datetime_.year = value % 100;
+    I2CDevice::data_buffer_[0] = encode_year();
+    write_register(REGISTERS::YEAR, 1);
     return *this;
 }
 

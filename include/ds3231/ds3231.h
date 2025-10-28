@@ -2,6 +2,7 @@
 #include "ds3231_domain.h"
 #include "ds3231_registers.h"
 #include "i2c/i2c_device.h"
+#include <algorithm>
 
 namespace DS3231
 {
@@ -34,6 +35,10 @@ class DS3231 : public I2CDevice
     DS3231 &set_seconds_register(uint8_t value = 0);
     DS3231 &set_minutes_register(uint8_t value = 0);
     DS3231 &set_hours_register(uint8_t value = 0, uint8_t is_meridial = 0, uint8_t is_am = 0);
+    DS3231 &set_dow_register(uint8_t value);
+    DS3231 &set_day_register(uint8_t value);
+    DS3231 &set_month_register(uint8_t value);
+    DS3231 &set_year_register(uint16_t value);
 
     domain::DateTime GetDateTime();
     const domain::DateTime &GetDateTimeConst();
@@ -50,6 +55,14 @@ class DS3231 : public I2CDevice
     uint8_t decode_day(uint8_t value);
     uint8_t decode_month(uint8_t value);
     uint8_t decode_year(uint8_t value);
+
+    uint8_t encode_seconds();
+    uint8_t encode_minutes();
+    uint8_t encode_hours();
+    uint8_t encode_dow();
+    uint8_t encode_day();
+    uint8_t encode_month();
+    uint8_t encode_year();
 
     void read_seconds_register();
     void read_minutes_register();

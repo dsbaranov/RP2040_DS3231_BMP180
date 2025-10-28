@@ -29,7 +29,13 @@ int main()
     gpio_put(LED_PIN, false);
     // For more examples of I2C use see https://github.com/raspberrypi/pico-examples/tree/master/i2c
 
-    // ds3231.set_hours_register(13, 0, 0).set_minutes_register(35).set_seconds_register(00);
+    // ds3231.set_hours_register(11, 0, 0)
+    //     .set_minutes_register(3)
+    //     .set_seconds_register(0)
+    //     .set_dow_register(1)
+    //     .set_day_register(28)
+    //     .set_month_register(10)
+    //     .set_year_register(2025);
 
     while (true)
     {

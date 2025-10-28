@@ -183,21 +183,21 @@ void DS3231::read_year_register()
     datetime_.year = decode_year(I2CDevice::data_buffer_[0]);
 }
 
-DS3231 &DS3231::set_seconds_register(uint8_t value)
+DS3231 &DS3231::SetSeconds(uint8_t value)
 {
     datetime_.seconds = value % 60;
     I2CDevice::data_buffer_[0] = encode_seconds();
     I2CDevice::write_register(REGISTERS::SECOND, 1u);
     return *this;
 }
-DS3231 &DS3231::set_minutes_register(uint8_t value)
+DS3231 &DS3231::SetMinutes(uint8_t value)
 {
     datetime_.minutes = value % 60;
     I2CDevice::data_buffer_[0] = encode_minutes();
     I2CDevice::write_register(REGISTERS::MINUTE, 1u);
     return *this;
 }
-DS3231 &DS3231::set_hours_register(uint8_t value, uint8_t is_meridial, uint8_t is_am)
+DS3231 &DS3231::SetHours(uint8_t value, uint8_t is_meridial, uint8_t is_am)
 {
     if (is_meridial)
     {
@@ -218,28 +218,28 @@ DS3231 &DS3231::set_hours_register(uint8_t value, uint8_t is_meridial, uint8_t i
     write_register(REGISTERS::HOUR, 1);
     return *this;
 }
-DS3231 &DS3231::set_dow_register(uint8_t value)
+DS3231 &DS3231::SetDow(uint8_t value)
 {
     datetime_.dow = value % 7;
     I2CDevice::data_buffer_[0] = encode_dow();
     write_register(REGISTERS::DOW, 1);
     return *this;
 }
-DS3231 &DS3231::set_day_register(uint8_t value)
+DS3231 &DS3231::SetDay(uint8_t value)
 {
     datetime_.day = std::min(uint8_t(31), value);
     I2CDevice::data_buffer_[0] = encode_day();
     write_register(REGISTERS::DAY, 1);
     return *this;
 }
-DS3231 &DS3231::set_month_register(uint8_t value)
+DS3231 &DS3231::SetMonth(uint8_t value)
 {
     datetime_.month = std::max(std::min(uint8_t(12u), value), uint8_t(1));
     I2CDevice::data_buffer_[0] = datetime_.month;
     write_register(REGISTERS::MONTH, 1);
     return *this;
 }
-DS3231 &DS3231::set_year_register(uint16_t value)
+DS3231 &DS3231::SetYear(uint16_t value)
 {
     datetime_.age = value / 100;
     datetime_.year = value % 100;

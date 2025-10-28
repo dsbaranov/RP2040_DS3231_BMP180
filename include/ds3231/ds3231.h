@@ -32,13 +32,13 @@ class DS3231 : public I2CDevice
     std::string GetFormattedMonth();
     std::string GetFormattedYear();
 
-    DS3231 &set_seconds_register(uint8_t value = 0);
-    DS3231 &set_minutes_register(uint8_t value = 0);
-    DS3231 &set_hours_register(uint8_t value = 0, uint8_t is_meridial = 0, uint8_t is_am = 0);
-    DS3231 &set_dow_register(uint8_t value);
-    DS3231 &set_day_register(uint8_t value);
-    DS3231 &set_month_register(uint8_t value);
-    DS3231 &set_year_register(uint16_t value);
+    DS3231 &SetSeconds(uint8_t value = 0);
+    DS3231 &SetMinutes(uint8_t value = 0);
+    DS3231 &SetHours(uint8_t value = 0, uint8_t is_meridial = 0, uint8_t is_am = 0);
+    DS3231 &SetDow(uint8_t value);
+    DS3231 &SetDay(uint8_t value);
+    DS3231 &SetMonth(uint8_t value);
+    DS3231 &SetYear(uint16_t value);
 
     domain::DateTime GetDateTime();
     const domain::DateTime &GetDateTimeConst();

@@ -27,15 +27,8 @@ int main()
     gpio_put(LED_PIN, true);
     sleep_ms(1000);
     gpio_put(LED_PIN, false);
-    // For more examples of I2C use see https://github.com/raspberrypi/pico-examples/tree/master/i2c
 
-    // ds3231.set_hours_register(11, 0, 0)
-    //     .set_minutes_register(3)
-    //     .set_seconds_register(0)
-    //     .set_dow_register(1)
-    //     .set_day_register(28)
-    //     .set_month_register(10)
-    //     .set_year_register(2025);
+    // ds3231.SetHours(11, 0, 0).SetMinutes(46).SetSeconds(0).SetDow(1).SetDay(28).SetMonth(10).SetYear(2025);
 
     while (true)
     {

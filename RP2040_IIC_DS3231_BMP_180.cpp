@@ -28,7 +28,17 @@ int main()
     sleep_ms(1000);
     gpio_put(LED_PIN, false);
 
-    // ds3231.SetHours(11, 0, 0).SetMinutes(46).SetSeconds(0).SetDow(1).SetDay(28).SetMonth(10).SetYear(2025);
+    // ds3231.SetHours(22, 0, 0).SetMinutes(31).SetSeconds(0).SetDow(1).SetDay(28).SetMonth(10).SetYear(2025);
+    ds3231.SetDateTimeBlock(DS3231::domain::DateTime{.seconds = 0,
+                                                     .minutes = 55,
+                                                     .hours = 23,
+                                                     .dow = 1,
+                                                     .day = 28,
+                                                     .month = 10,
+                                                     .year = 25,
+                                                     .is_meridial = 0,
+                                                     .is_pm = 0,
+                                                     .age = 20});
 
     while (true)
     {

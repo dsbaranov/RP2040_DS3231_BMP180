@@ -39,6 +39,7 @@ class DS3231 : public I2CDevice
     DS3231 &SetDay(uint8_t value);
     DS3231 &SetMonth(uint8_t value);
     DS3231 &SetYear(uint16_t value);
+    void SetDateTimeBlock(const domain::DateTime &datetime);
 
     domain::DateTime GetDateTime();
     const domain::DateTime &GetDateTimeConst();

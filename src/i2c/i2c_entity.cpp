@@ -19,3 +19,4 @@ void I2C::init(i2c_inst_t *i2c, uint8_t scl_pin, uint8_t sda_pin)
     gpio_pull_up(scl_pin);
     gpio_pull_up(sda_pin);
 }
+// Тут снова был Магамек

@@ -39,6 +39,12 @@ class DS3231 : public I2CDevice
     DS3231 &SetDay(uint8_t value);
     DS3231 &SetMonth(uint8_t value);
     DS3231 &SetYear(uint16_t value);
+
+    DS3231 &SetAlarm1(uint8_t seconds, uint8_t minutes, uint8_t hours, bool is_meridian, bool is_pm, uint8_t day,
+                      bool dow);
+
+    DS3231 &SetAlarm2(uint8_t minutes, uint8_t hours, bool is_meridian, bool is_pm, uint8_t day, bool dow);
+
     void SetDateTimeBlock(const domain::DateTime &datetime);
 
     domain::DateTime GetDateTime();
@@ -57,13 +63,13 @@ class DS3231 : public I2CDevice
     uint8_t decode_month(uint8_t value);
     uint8_t decode_year(uint8_t value);
 
-    uint8_t encode_seconds();
-    uint8_t encode_minutes();
-    uint8_t encode_hours();
-    uint8_t encode_dow();
-    uint8_t encode_day();
-    uint8_t encode_month();
-    uint8_t encode_year();
+    uint8_t encode_seconds(uint8_t seconds);
+    uint8_t encode_minutes(uint8_t minutes);
+    uint8_t encode_hours(uint8_t hours, uint8_t is_meridial, uint8_t is_pm);
+    uint8_t encode_dow(uint8_t dow);
+    uint8_t encode_day(uint8_t day);
+    uint8_t encode_month(uint8_t month);
+    uint8_t encode_year(uint8_t month);
 
     void read_seconds_register();
     void read_minutes_register();

@@ -12,7 +12,6 @@ class DS3231 : public I2CDevice
 {
   public:
     DS3231(i2c_inst_t *i2c);
-
     DS3231() = delete;
     DS3231(const DS3231 &) = delete;
     DS3231(DS3231 &&) = delete;
@@ -50,18 +49,23 @@ class DS3231 : public I2CDevice
     domain::DateTime GetDateTime();
     const domain::DateTime &GetDateTimeConst();
 
+    void ReadControls();
+    DS3231 &SetControls();
+
+    domain::Controls controls;
+
   private:
     domain::DateTime datetime_;
 
     void read_bulk_date_time_block();
 
-    uint8_t decode_seconds(uint8_t value);
-    uint8_t decode_minutes(uint8_t value);
-    uint8_t decode_hours(uint8_t value);
-    uint8_t decode_dow(uint8_t value);
-    uint8_t decode_day(uint8_t value);
-    uint8_t decode_month(uint8_t value);
-    uint8_t decode_year(uint8_t value);
+    uint8_t decode_seconds(uint8_t seconds);
+    uint8_t decode_minutes(uint8_t minutes);
+    uint8_t decode_hours(uint8_t hours);
+    uint8_t decode_dow(uint8_t dow);
+    uint8_t decode_day(uint8_t day);
+    uint8_t decode_month(uint8_t month);
+    uint8_t decode_year(uint8_t year);
 
     uint8_t encode_seconds(uint8_t seconds);
     uint8_t encode_minutes(uint8_t minutes);
@@ -69,7 +73,7 @@ class DS3231 : public I2CDevice
     uint8_t encode_dow(uint8_t dow);
     uint8_t encode_day(uint8_t day);
     uint8_t encode_month(uint8_t month);
-    uint8_t encode_year(uint8_t month);
+    uint8_t encode_year(uint8_t year);
 
     void read_seconds_register();
     void read_minutes_register();
@@ -78,5 +82,7 @@ class DS3231 : public I2CDevice
     void read_day_register();
     void read_month_register();
     void read_year_register();
+
+    void read_controls();
 };
 }; // namespace DS3231

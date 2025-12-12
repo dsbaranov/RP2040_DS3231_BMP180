@@ -28,17 +28,31 @@ int main()
     sleep_ms(1000);
     gpio_put(LED_PIN, false);
 
-    // ds3231.SetHours(22, 0, 0).SetMinutes(31).SetSeconds(0).SetDow(1).SetDay(28).SetMonth(10).SetYear(2025);
-    ds3231.SetDateTimeBlock(DS3231::domain::DateTime{.seconds = 0,
-                                                     .minutes = 55,
-                                                     .hours = 23,
-                                                     .dow = 1,
-                                                     .day = 28,
-                                                     .month = 10,
-                                                     .year = 25,
-                                                     .is_meridial = 0,
-                                                     .is_pm = 0,
-                                                     .age = 20});
+    //     ds3231.SetDateTimeBlock(DS3231::domain::DateTime{.seconds = 0,
+    //                                                      .minutes = 35,
+    //                                                      .hours = 00,
+    //                                                      .dow = 5,
+    //                                                      .day = 13,
+    //                                                      .month = 12,
+    //                                                      .year = 25,
+    //                                                      .is_meridial = 0,
+    //                                                      .is_pm = 0,
+    //                                                      .age = 20});
+
+    ds3231.ReadControls();
+
+    printf("OLD : EOSC:%i BBSQW:%i CONV:%i RS1:%i RS2:%i INTCN:%i A2IE:%i A1IE:%i\n", ds3231.controls.EOSC,
+           ds3231.controls.BBSQW, ds3231.controls.CONV, ds3231.controls.RS2, ds3231.controls.RS1, ds3231.controls.INTCN,
+           ds3231.controls.A2IE, ds3231.controls.A1IE);
+
+    ds3231.controls.EOSC = 1;
+    ds3231.SetControls();
+
+    ds3231.ReadControls();
+
+    printf("NEW : EOSC:%i BBSQW:%i CONV:%i RS1:%i RS2:%i INTCN:%i A2IE:%i A1IE:%i\n", ds3231.controls.EOSC,
+           ds3231.controls.BBSQW, ds3231.controls.CONV, ds3231.controls.RS2, ds3231.controls.RS1, ds3231.controls.INTCN,
+           ds3231.controls.A2IE, ds3231.controls.A1IE);
 
     while (true)
     {

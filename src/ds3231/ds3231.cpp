@@ -21,31 +21,31 @@ void DS3231::read_bulk_date_time_block()
     datetime_.year = decode_year(I2CDevice::data_buffer_[reg_cnt]);
 }
 
-uint8_t DS3231::decode_seconds(uint8_t value)
+uint8_t DS3231::decode_seconds(uint8_t seconds)
 {
-    return common::ByteBinDecToDec(value);
+    return common::ByteBinDecToDec(seconds);
 }
-uint8_t DS3231::decode_minutes(uint8_t value)
+uint8_t DS3231::decode_minutes(uint8_t minutes)
 {
-    return common::ByteBinDecToDec(value);
+    return common::ByteBinDecToDec(minutes);
 }
-uint8_t DS3231::decode_hours(uint8_t value)
+uint8_t DS3231::decode_hours(uint8_t hours)
 {
-    datetime_.is_meridial = (value >> 6) & 0x01;
-    datetime_.is_pm = (value >> 5) & 0x01;
+    datetime_.is_meridial = (hours >> 6) & 0x01;
+    datetime_.is_pm = (hours >> 5) & 0x01;
     if (datetime_.is_meridial)
     {
-        return common::ByteBinDecToDec(value & 0x1F);
+        return common::ByteBinDecToDec(hours & 0x1F);
     }
     else
     {
-        return common::ByteBinDecToDec(value & 0x3F);
+        return common::ByteBinDecToDec(hours & 0x3F);
     }
 }
-uint8_t DS3231::decode_dow(uint8_t value)
+uint8_t DS3231::decode_dow(uint8_t dow)
 {
     uint8_t result;
-    switch (value)
+    switch (dow)
     {
     case 1: // вс
         result = 6;
@@ -74,22 +74,22 @@ uint8_t DS3231::decode_dow(uint8_t value)
     }
     return result;
 }
-uint8_t DS3231::decode_day(uint8_t value)
+uint8_t DS3231::decode_day(uint8_t day)
 {
-    return common::ByteBinDecToDec(value);
+    return common::ByteBinDecToDec(day);
 }
-uint8_t DS3231::decode_month(uint8_t value)
+uint8_t DS3231::decode_month(uint8_t month)
 {
-    bool new_age = static_cast<bool>((value >> 7) & 0x01);
+    bool new_age = static_cast<bool>((month >> 7) & 0x01);
     if (new_age)
     {
         datetime_.age++;
     }
-    return value & 0x1F;
+    return month & 0x1F;
 }
-uint8_t DS3231::decode_year(uint8_t value)
+uint8_t DS3231::decode_year(uint8_t year)
 {
-    return common::ByteBinDecToDec(value);
+    return common::ByteBinDecToDec(year);
 }
 
 uint8_t DS3231::encode_seconds(uint8_t seconds)
@@ -180,6 +180,20 @@ void DS3231::read_year_register()
 {
     I2CDevice::read_register(REGISTERS::YEAR, 1);
     datetime_.year = decode_year(I2CDevice::data_buffer_[0]);
+}
+
+void DS3231::read_controls()
+{
+    I2CDevice::read_register(REGISTERS::CONTROL, 1);
+    uint8_t cnt = 7;
+    controls.EOSC = (data_buffer_[0] >> cnt--) & 0x01;
+    controls.BBSQW = (data_buffer_[0] >> cnt--) & 0x01;
+    controls.CONV = (data_buffer_[0] >> cnt--) & 0x01;
+    controls.RS2 = (data_buffer_[0] >> cnt--) & 0x01;
+    controls.RS1 = (data_buffer_[0] >> cnt--) & 0x01;
+    controls.INTCN = (data_buffer_[0] >> cnt--) & 0x01;
+    controls.A2IE = (data_buffer_[0] >> cnt--) & 0x01;
+    controls.A1IE = data_buffer_[0] & 0x01;
 }
 
 DS3231 &DS3231::SetSeconds(uint8_t value)
@@ -376,4 +390,17 @@ const domain::DateTime &DS3231::GetDateTimeConst()
     return datetime_;
 }
 
+void DS3231::ReadControls()
+{
+    read_controls();
+}
+
+DS3231 &DS3231::SetControls()
+{
+    data_buffer_[0] = 0x00 | ((controls.EOSC & 0x01) << 7u) | ((controls.BBSQW & 0x01) << 6u) |
+                      ((controls.CONV & 0x01) << 5u) | ((controls.RS1 & 0x01) << 4u) | ((controls.RS2 & 0x01) << 3u) |
+                      ((controls.INTCN & 0x01) << 2u) | ((controls.A1IE & 0x01) << 1u) | (controls.A2IE & 0x01);
+    write_register(REGISTERS::CONTROL, 1);
+    return *this;
+}
 }; // namespace DS3231

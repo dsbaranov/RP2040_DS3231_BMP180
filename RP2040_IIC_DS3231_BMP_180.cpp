@@ -28,16 +28,16 @@ int main()
     sleep_ms(1000);
     gpio_put(LED_PIN, false);
 
-//     ds3231.SetDateTimeBlock(DS3231::domain::DateTime{.seconds = 0,
-//                                                      .minutes = 19,
-//                                                      .hours = 02,
-//                                                      .dow = 6,
-//                                                      .day = 13,
-//                                                      .month = 12,
-//                                                      .year = 25,
-//                                                      .is_meridial = 0,
-//                                                      .is_pm = 0,
-//                                                      .age = 20});
+    //     ds3231.SetDateTimeBlock(DS3231::domain::DateTime{.seconds = 0,
+    //                                                      .minutes = 02,
+    //                                                      .hours = 17,
+    //                                                      .dow = 2,
+    //                                                      .day = 16,
+    //                                                      .month = 12,
+    //                                                      .year = 25,
+    //                                                      .is_meridial = 0,
+    //                                                      .is_pm = 0,
+    //                                                      .age = 20});
 
     ds3231.ReadControls();
 

@@ -42,7 +42,7 @@ ${SOURCEDIR}/ds3231/ds3231.cpp
 ${SOURCEDIR}/ds3231/ds3231_common.cpp
 ${SOURCEDIR}/ds3231/ds3231_domain.cpp
 ${SOURCEDIR}/i2c/i2c_device.cpp
-
+${SOURCEDIR}/bmp180/bmp180.cpp
 )
 
 set(incl 
@@ -52,6 +52,7 @@ ${INCLUDEDIR}/ds3231/ds3231_registers.h
 ${INCLUDEDIR}/ds3231/ds3231_domain.h
 ${INCLUDEDIR}/ds3231/ds3231_common.h
 ${INCLUDEDIR}/i2c/i2c_device.h
+${INCLUDEDIR}/bmp180/bmp180.h
 )
 
 # Add executable. Default name is the project name, version 0.1

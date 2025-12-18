@@ -39,6 +39,10 @@ struct MeasureControl
     static const uint8_t PRESSURE_CMD = 20;
 
   public:
+    MeasureControl(MeasureDiscretion _oss, MeasureCommand _cmd) : oss(_oss), cso(1u), cmd(_cmd)
+    {
+    }
+
     MeasureDiscretion oss = MeasureDiscretion::x1;
     uint8_t cso = 1;
     MeasureCommand cmd = MeasureCommand::Temperature;

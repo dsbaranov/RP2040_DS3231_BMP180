@@ -1,5 +1,6 @@
 #include "bmp180/bmp180.h"
 #include "bmp180/bmp180_common.h"
+#include <cmath>
 namespace BMP180
 {
 
@@ -29,17 +30,194 @@ void BMP180::GetCoefficients()
     coefficients.MC = common::UnifyBytes<int16_t>(data_buffer_[counter++], data_buffer_[counter++]);
     coefficients.MD = common::UnifyBytes<int16_t>(data_buffer_[counter++], data_buffer_[counter++]);
 }
+
+void BMP180::SetOSS(domain::MeasureDiscretion oss)
+{
+    oss_ = oss;
+}
+
+void BMP180::ReadData()
+{
+    GetTemperature();
+    GetPressure();
+    if (temperature_raw != 0 && pressure_raw != 0)
+    {
+        ExecuteCalculation();
+    }
+    else
+    {
+        temperature_raw = pressure_raw = 0;
+        temperature_ = pressure_ = 0.;
+    }
+    Flush();
+}
+
+float BMP180::temperature()
+{
+    return temperature_;
+}
+float BMP180::pressure()
+{
+    return pressure_;
+}
+
+void BMP180::Flush()
+{
+    data_buffer_[0] = 0xB6;
+    write_register(REGISTERS::SOFT_RESET, 1);
+}
+
+uint8_t BMP180::GetOssIndex() const
+{
+    if (oss_ == domain::MeasureDiscretion::x1)
+    {
+        return 0u;
+    }
+    else if (oss_ == domain::MeasureDiscretion::x2)
+    {
+        return 1u;
+    }
+    else if (oss_ == domain::MeasureDiscretion::x4)
+    {
+        return 2u;
+    }
+    else
+    {
+        return 3u;
+    }
+}
+
+void BMP180::SendMeasureCommand(domain::MeasureCommand command)
+{
+    domain::MeasureDiscretion oss = oss_;
+    if (command == domain::MeasureCommand::Temperature)
+    {
+        oss = domain::MeasureDiscretion::x1;
+    }
+    data_buffer_[0] =
+        domain::MeasureControl{
+            oss,
+            command,
+        }
+            .Pack();
+
+    write_register(REGISTERS::MEASUREMENT_CTRL, 1u);
+}
+
+bool BMP180::ReadMeasureFlag()
+{
+    read_register(REGISTERS::MEASUREMENT_CTRL, 1);
+    return ((data_buffer_[0] >> 5) & 0x01) == 0x00;
+}
+
+bool BMP180::ExecuteMeasure(domain::MeasureCommand command, uint8_t attempts = 4u)
+{
+    SendMeasureCommand(command);
+    bool measure_done = false;
+    uint8_t attempt_count = 1u;
+    while (measure_done == false)
+    {
+        sleep_ms(5u);
+        measure_done = ReadMeasureFlag();
+        if (attempt_count > attempts)
+        {
+            return false;
+        }
+        attempt_count++;
+    }
+    return true;
+}
+
+void BMP180::GetTemperature()
+{
+    bool temp_flag = ExecuteMeasure(domain::MeasureCommand::Temperature);
+    if (temp_flag == true)
+    {
+        read_register(REGISTERS::OUT_MSB, 2);
+        long t_raw_msb = static_cast<long>(data_buffer_[0]) << 8u;
+        temperature_raw = ((static_cast<long>(data_buffer_[0]) << 8u) + (static_cast<long>(data_buffer_[1]) && 0xff));
+    }
+    else
+    {
+        temperature_raw = 0;
+    }
+}
+
+void BMP180::GetPressure()
+{
+    bool pres_flag = ExecuteMeasure(domain::MeasureCommand::Pressure);
+    if (pres_flag == true)
+    {
+        read_register(REGISTERS::OUT_MSB, 3);
+        pressure_raw = (((static_cast<long>(data_buffer_[0]) << 16u)) + ((static_cast<long>(data_buffer_[1]) << 8u)) +
+                        static_cast<long>(data_buffer_[2])) >>
+                       (8u - GetOssIndex());
+    }
+    else
+    {
+        pressure_raw = 0;
+    }
+}
+
+// void BMP180::ExecuteCalculation()
+// {
+//     uint8_t oss_index = GetOssIndex();
+//     short PP1 =
+//         ((temperature_raw - coefficients.AC6) * coefficients.AC5 >> 15) +
+//         (coefficients.MC << 11) / (((temperature_raw - coefficients.AC6) * coefficients.AC5 >> 15) +
+//         coefficients.MD);
+//     unsigned short PP2 = ((uint32_t)coefficients.AC4 *
+//                           (uint32_t)(((((coefficients.AC3 * (PP1 - 4000)) >> 13) +
+//                                        ((coefficients.B1 * (((PP1 - 4000) * (PP1 - 4000)) >> 12)) >> 16) + 2) >>
+//                                       2) +
+//                                      32768)) >>
+//                          15;
+//     unsigned short PP3 = ((uint32_t)pressure_raw -
+//                           ((((coefficients.AC1 * 4 + ((coefficients.B2 * (((PP1 - 4000) * (PP1 - 4000)) >> 12)) >>
+//                           11) +
+//                               ((coefficients.AC2 * (PP1 - 4000)) >> 11))
+//                              << oss_index) +
+//                             2) >>
+//                            2)) *
+//                          (uint32_t)(50000UL >> oss_index);
+//     short PP4 = PP3 < 0x80000000 ? PP3 * 2 / PP2 : PP3 / PP2 * 2;
+//     temperature_ = ((float)PP1 + 8) / 160;
+//     pressure_ =
+//         ((float)PP4 + (((((PP4 >> 8) * (PP4 >> 8) * 3038) >> 16) + ((-7357 * PP4) >> 16) + 3791) >> 4)) / 133.322;
+// }
+
+void BMP180::ExecuteCalculation()
+{
+    uint8_t oss = GetOssIndex();
+    long X1, X2, X3, B3, B4, B5, B6, B7, p;
+    X1 = (temperature_raw - coefficients.AC6) * coefficients.AC5 / static_cast<long>(pow(2, 15u));
+    X2 = coefficients.MC * static_cast<long>(pow(2, 11u)) / (X1 + coefficients.MD);
+    B5 = X1 + X2;
+    temperature_ = static_cast<float>(static_cast<double>(B5 + 8) / pow(2, 4) / 10.);
+
+    B6 = B5 - 4000;
+    X1 = (coefficients.B2 * (B6 * B6 / static_cast<long>(pow(2, 12u)))) / static_cast<long>(pow(2, 11u));
+    X2 = coefficients.AC2 * B6 / static_cast<long>(pow(2, 11));
+    X3 = X1 + X2;
+    B3 = (((static_cast<long>(coefficients.AC1) * 4 + X3) << oss) + 2u) / 4u;
+    X1 = static_cast<long>(coefficients.AC3) * B6 / static_cast<long>(pow(2, 13));
+    X2 = (static_cast<long>(coefficients.B1) * (B6 * B6 / static_cast<long>(pow(2, 12)))) /
+         static_cast<long>(pow(2, 16));
+    X3 = (X1 + X2 + 2u) / static_cast<long>(pow(2, 2));
+    B4 = static_cast<long>(coefficients.AC4) * static_cast<unsigned long>(X3 + 32768) / static_cast<long>(pow(2, 15));
+    B7 = (static_cast<unsigned long>(pressure_raw) - B3) * (50000 >> oss);
+    if (B7 < 0x80000000)
+    {
+        p = (B7 * 2) / B4;
+    }
+    else
+    {
+        p = (B7 / B4 * 2);
+    }
+    X1 = (p / static_cast<long>(pow(2, 8))) * (p / static_cast<long>(pow(2, 8)));
+    X1 = (X1 * 3038) / static_cast<long>(pow(2, 16));
+    X2 = (-7357 * p) / static_cast<long>(pow(2, 16));
+    pressure_ = static_cast<float>(p + (X1 + X2 + 3791) / static_cast<long>(pow(2, 4)));
+}
+
 } // namespace BMP180
-
-void BMP180::BMP180::GetTemperature()
-{
-}
-
-void BMP180::BMP180::GetPressure()
-{
-}
-
-void BMP180::BMP180::SendMeasureCommand(domain::MeasureCommand command,
-                                        domain::MeasureDiscretion discretion = domain::MeasureDiscretion::x1)
-{
-}

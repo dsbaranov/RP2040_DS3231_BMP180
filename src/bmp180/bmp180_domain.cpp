@@ -1,6 +1,8 @@
 #include "bmp180/bmp180_domain.h"
 
-uint8_t BMP180::domain::MeasureControl::Pack()
+namespace BMP180::domain
+{
+uint8_t MeasureControl::Pack()
 {
     uint8_t _cmd;
     if (cmd == MeasureCommand::Temperature)
@@ -17,3 +19,4 @@ uint8_t BMP180::domain::MeasureControl::Pack()
     }
     return (((static_cast<uint8_t>(oss) << 1) | 0x01) << 5u) | _cmd;
 }
+} // namespace BMP180::domain

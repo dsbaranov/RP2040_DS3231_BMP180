@@ -58,8 +58,11 @@ int main()
         auto datetime_f = ds3231.GetDateTime().AsFormatted();
         printf("%s.%s.%s %s:%s:%s\n", datetime_f.day.c_str(), datetime_f.month.c_str(), datetime_f.year.c_str(),
                datetime_f.hours.c_str(), datetime_f.minutes.c_str(), datetime_f.seconds.c_str());
-        bool present = bmp180.Ping();
-        printf("bmp180 is %s\n", present ? "present" : "not present");
+
+        bmp180.ReadData();
+
+        printf("temperature: %f, pressure: %f \n", bmp180.temperature(), bmp180.pressure());
+
         sleep_ms(1000);
     }
 }

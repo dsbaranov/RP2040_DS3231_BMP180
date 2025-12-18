@@ -16,16 +16,29 @@ class BMP180 : public I2CDevice
     BMP180(BMP180 &&) = delete;
 
     bool Ping();
-
     void GetCoefficients();
+    void SetOSS(domain::MeasureDiscretion);
+    void ReadData();
 
-    void GetTemperature();
-    void GetPressure();
+    float temperature();
+    float pressure();
+
+    void Flush();
 
   private:
+    float temperature_ = 0.f, pressure_ = 0.f;
     domain::Coefficients coefficients;
+    long temperature_raw = 0, pressure_raw = 0;
+    domain::MeasureDiscretion oss_ = domain::MeasureDiscretion::x1;
 
-    void SendMeasureCommand(domain::MeasureCommand command, domain::MeasureDiscretion discretion);
+    uint8_t GetOssIndex() const;
+
+    void SendMeasureCommand(domain::MeasureCommand command);
+    bool ReadMeasureFlag();
+    bool ExecuteMeasure(domain::MeasureCommand command, uint8_t attempts);
+    void GetTemperature();
+    void GetPressure();
+    void ExecuteCalculation();
 };
 
 } // namespace BMP180

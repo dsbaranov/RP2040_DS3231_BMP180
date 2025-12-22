@@ -56,6 +56,15 @@ ${LIBDIR}/i2c/i2c_entity.cpp
 
 ${LIBDIR}/i2c/i2c_device.h
 ${LIBDIR}/i2c/i2c_device.cpp
+
+${LIBDIR}/ssd1315/ssd1315.h
+${LIBDIR}/ssd1315/ssd1315.cpp
+${LIBDIR}/ssd1315/ssd1315_common.h
+${LIBDIR}/ssd1315/ssd1315_common.cpp
+${LIBDIR}/ssd1315/ssd1315_domain.h
+${LIBDIR}/ssd1315/ssd1315_domain.cpp
+${LIBDIR}/ssd1315/ssd1315_registers.h
+
 )
 
 # Add executable. Default name is the project name, version 0.1

@@ -4,6 +4,8 @@
 #include "i2c/i2c_entity.h"
 #include "pico/stdlib.h"
 #include <cstring>
+#include <iomanip>
+#include <iostream>
 #include <stdio.h>
 
 // I2C defines
@@ -59,10 +61,10 @@ int main()
     {
         bmp180.ReadData();
         auto datetime_f = ds3231.GetDateTime().AsFormatted();
-        printf("%s.%s.%s %s:%s:%s %.1f %.1f\n", datetime_f.day.c_str(), datetime_f.month.c_str(),
-               datetime_f.year.c_str(), datetime_f.hours.c_str(), datetime_f.minutes.c_str(),
-               datetime_f.seconds.c_str(), bmp180.temperature(), bmp180.pressure());
-
+        std::cout << datetime_f.day.c_str() << '.' << datetime_f.month.c_str() << '.' << datetime_f.year.c_str() << ' '
+                  << datetime_f.hours.c_str() << ':' << datetime_f.minutes.c_str() << ':' << datetime_f.seconds.c_str()
+                  << ' ' << std::setw(5) << std::setprecision(3) << bmp180.temperature() << "C " << std::setprecision(4)
+                  << bmp180.pressure() << "mm" << std::endl;
         sleep_ms(1000);
     }
 }

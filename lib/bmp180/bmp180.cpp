@@ -198,7 +198,7 @@ void BMP180::ExecuteCalculation()
     X2 = (coefficients.MC << 11) / (X1 + coefficients.MD);
     B5 = X1 + X2;
     T = (B5 + 8) >> 4;
-    temperature_ = (float)T / 10;
+    temperature_ = (double)T / 10;
 
     /*Calculate pressure*/
     B6 = B5 - 4000;
@@ -219,6 +219,6 @@ void BMP180::ExecuteCalculation()
     X1 = (X1 * 3038) >> 16;
     X2 = (-7357 * (pressure_raw)) >> 16;
     pressure_raw = pressure_raw + ((X1 + X2 + 3791) >> 4);
-    pressure_ = ((float)pressure_raw) * 0.7500615f / 100.f;
+    pressure_ = ((double)pressure_raw) * 0.7500615f / 100.f;
 }
 } // namespace BMP180

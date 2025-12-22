@@ -26,7 +26,7 @@ class BMP180 : public I2CDevice
     void Flush();
 
   private:
-    float temperature_ = 0.f, pressure_ = 0.f;
+    double temperature_ = 0.f, pressure_ = 0.f;
     domain::Coefficients coefficients;
     long temperature_raw = 0, pressure_raw = 0;
     domain::MeasureDiscretion oss_ = domain::MeasureDiscretion::x1;

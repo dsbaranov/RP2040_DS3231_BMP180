@@ -189,35 +189,36 @@ void BMP180::GetPressure()
 void BMP180::ExecuteCalculation()
 {
     uint8_t oss = GetOssIndex();
-    long X1, X2, X3, B3, B4, B5, B6, B7, p;
-    X1 = (temperature_raw - coefficients.AC6) * coefficients.AC5 / static_cast<long>(pow(2, 15u));
-    X2 = coefficients.MC * static_cast<long>(pow(2, 11u)) / (X1 + coefficients.MD);
+    long X1, X2, B5, T;
+    long B6, X3, B3;
+    unsigned long B4, B7;
+
+    /*Calculate temperature*/
+    X1 = ((temperature_raw - coefficients.AC6) * coefficients.AC5) >> 15;
+    X2 = (coefficients.MC << 11) / (X1 + coefficients.MD);
     B5 = X1 + X2;
-    temperature_ = static_cast<float>(static_cast<double>(B5 + 8) / pow(2, 4) / 10.);
+    T = (B5 + 8) >> 4;
+    temperature_ = (float)T / 10;
 
+    /*Calculate pressure*/
     B6 = B5 - 4000;
-    X1 = (coefficients.B2 * (B6 * B6 / static_cast<long>(pow(2, 12u)))) / static_cast<long>(pow(2, 11u));
-    X2 = coefficients.AC2 * B6 / static_cast<long>(pow(2, 11));
+    X1 = (coefficients.B2 * ((B6 * B6) >> 12)) >> 11;
+    X2 = (coefficients.AC2 * B6) >> 11;
     X3 = X1 + X2;
-    B3 = (((static_cast<long>(coefficients.AC1) * 4 + X3) << oss) + 2u) / 4u;
-    X1 = static_cast<long>(coefficients.AC3) * B6 / static_cast<long>(pow(2, 13));
-    X2 = (static_cast<long>(coefficients.B1) * (B6 * B6 / static_cast<long>(pow(2, 12)))) /
-         static_cast<long>(pow(2, 16));
-    X3 = (X1 + X2 + 2u) / static_cast<long>(pow(2, 2));
-    B4 = static_cast<long>(coefficients.AC4) * static_cast<unsigned long>(X3 + 32768) / static_cast<long>(pow(2, 15));
-    B7 = (static_cast<unsigned long>(pressure_raw) - B3) * (50000 >> oss);
+    B3 = (((coefficients.AC1 * 4 + X3) << oss) + 2) >> 2;
+    X1 = (coefficients.AC3 * B6) >> 13;
+    X2 = (coefficients.B1 * ((B6 * B6) >> 12)) >> 16;
+    X3 = ((X1 + X2) + 2) >> 2;
+    B4 = (coefficients.AC4 * (unsigned long)(X3 + 32768)) >> 15;
+    B7 = ((unsigned long)pressure_raw - B3) * (50000 >> oss);
     if (B7 < 0x80000000)
-    {
-        p = (B7 * 2) / B4;
-    }
+        pressure_raw = (B7 * 2) / B4;
     else
-    {
-        p = (B7 / B4 * 2);
-    }
-    X1 = (p / static_cast<long>(pow(2, 8))) * (p / static_cast<long>(pow(2, 8)));
-    X1 = (X1 * 3038) / static_cast<long>(pow(2, 16));
-    X2 = (-7357 * p) / static_cast<long>(pow(2, 16));
-    pressure_ = static_cast<float>(p + (X1 + X2 + 3791) / static_cast<long>(pow(2, 4)));
+        pressure_raw = (B7 / B4) * 2;
+    X1 = (pressure_raw >> 8) * (pressure_raw >> 8);
+    X1 = (X1 * 3038) >> 16;
+    X2 = (-7357 * (pressure_raw)) >> 16;
+    pressure_raw = pressure_raw + ((X1 + X2 + 3791) >> 4);
+    pressure_ = ((float)pressure_raw) * 0.7500615f / 100.f;
 }
-
 } // namespace BMP180

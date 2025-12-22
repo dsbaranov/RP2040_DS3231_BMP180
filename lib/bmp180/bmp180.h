@@ -1,7 +1,7 @@
 #pragma once
 
-#include "bmp180/bmp180_domain.h"
-#include "bmp180/bmp180_registers.h"
+#include "bmp180_domain.h"
+#include "bmp180_registers.h"
 #include "i2c/i2c_device.h"
 
 namespace BMP180

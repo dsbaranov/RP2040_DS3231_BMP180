@@ -1,4 +1,4 @@
-#include "bmp180/bmp180_domain.h"
+#include "bmp180_domain.h"
 
 namespace BMP180::domain
 {

@@ -33,38 +33,36 @@ project(RP2040_IIC_DS3231_BMP_180 C CXX ASM)
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
-set(SOURCEDIR ${CMAKE_CURRENT_LIST_DIR}/src)
-set(INCLUDEDIR ${CMAKE_CURRENT_LIST_DIR}/include)
+set(LIBDIR ${CMAKE_CURRENT_LIST_DIR}/lib)
 
-set(src 
-${SOURCEDIR}/i2c/i2c_entity.cpp
-${SOURCEDIR}/ds3231/ds3231.cpp
-${SOURCEDIR}/ds3231/ds3231_common.cpp
-${SOURCEDIR}/ds3231/ds3231_domain.cpp
-${SOURCEDIR}/i2c/i2c_device.cpp
-${SOURCEDIR}/bmp180/bmp180.cpp
-${SOURCEDIR}/bmp180/bmp180_domain.cpp
+set(LIBRARIES
+${LIBDIR}/bmp180/bmp180.h
+${LIBDIR}/bmp180/bmp180.cpp
+${LIBDIR}/bmp180/bmp180_domain.h
+${LIBDIR}/bmp180/bmp180_domain.cpp
+${LIBDIR}/bmp180/bmp180_common.h
+${LIBDIR}/bmp180/bmp180_registers.h
 
-)
+${LIBDIR}/ds3231/ds3231.h
+${LIBDIR}/ds3231/ds3231.cpp
+${LIBDIR}/ds3231/ds3231_common.h
+${LIBDIR}/ds3231/ds3231_common.cpp
+${LIBDIR}/ds3231/ds3231_domain.h
+${LIBDIR}/ds3231/ds3231_domain.cpp
+${LIBDIR}/ds3231/ds3231_registers.h
 
-set(incl 
-${INCLUDEDIR}/i2c/i2c_entity.h
-${INCLUDEDIR}/ds3231/ds3231.h
-${INCLUDEDIR}/ds3231/ds3231_registers.h
-${INCLUDEDIR}/ds3231/ds3231_domain.h
-${INCLUDEDIR}/ds3231/ds3231_common.h
-${INCLUDEDIR}/i2c/i2c_device.h
-${INCLUDEDIR}/bmp180/bmp180.h
-${INCLUDEDIR}/bmp180/bmp180_domain.h
+${LIBDIR}/i2c/i2c_entity.h
+${LIBDIR}/i2c/i2c_entity.cpp
 
+${LIBDIR}/i2c/i2c_device.h
+${LIBDIR}/i2c/i2c_device.cpp
 )
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(RP2040_IIC_DS3231_BMP_180 RP2040_IIC_DS3231_BMP_180.cpp ${incl} ${src})
+add_executable(RP2040_IIC_DS3231_BMP_180 RP2040_IIC_DS3231_BMP_180.cpp ${LIBRARIES})
 
-target_include_directories(RP2040_IIC_DS3231_BMP_180 PRIVATE ${SOURCEDIR})
-target_include_directories(RP2040_IIC_DS3231_BMP_180 PRIVATE ${INCLUDEDIR})
+target_include_directories(RP2040_IIC_DS3231_BMP_180 PRIVATE ${LIBDIR})
 
 pico_set_program_name(RP2040_IIC_DS3231_BMP_180 "RP2040_IIC_DS3231_BMP_180")
 pico_set_program_version(RP2040_IIC_DS3231_BMP_180 "0.1")

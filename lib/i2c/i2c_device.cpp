@@ -1,4 +1,4 @@
-#include "i2c/i2c_device.h"
+#include "i2c_device.h"
 
 I2CDevice::I2CDevice(i2c_inst_t *i2c, uint8_t device_address) : i2c_(i2c), device_address_(device_address)
 {

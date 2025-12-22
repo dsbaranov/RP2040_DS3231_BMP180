@@ -31,10 +31,10 @@ int main()
     gpio_put(LED_PIN, false);
 
     //     ds3231.SetDateTimeBlock(DS3231::domain::DateTime{.seconds = 0,
-    //                                                      .minutes = 28,
-    //                                                      .hours = 13,
-    //                                                      .dow = 3,
-    //                                                      .day = 17,
+    //                                                      .minutes = 44,
+    //                                                      .hours = 12,
+    //                                                      .dow = 1,
+    //                                                      .day = 22,
     //                                                      .month = 12,
     //                                                      .year = 25,
     //                                                      .is_meridial = 0,
@@ -53,15 +53,15 @@ int main()
 
     bmp180.GetCoefficients();
 
+    printf("size of size_t - %i\n", sizeof(size_t));
+
     while (true)
     {
-        auto datetime_f = ds3231.GetDateTime().AsFormatted();
-        printf("%s.%s.%s %s:%s:%s\n", datetime_f.day.c_str(), datetime_f.month.c_str(), datetime_f.year.c_str(),
-               datetime_f.hours.c_str(), datetime_f.minutes.c_str(), datetime_f.seconds.c_str());
-
         bmp180.ReadData();
-
-        printf("temperature: %f, pressure: %f \n", bmp180.temperature(), bmp180.pressure());
+        auto datetime_f = ds3231.GetDateTime().AsFormatted();
+        printf("%s.%s.%s %s:%s:%s %.1f %.1f\n", datetime_f.day.c_str(), datetime_f.month.c_str(),
+               datetime_f.year.c_str(), datetime_f.hours.c_str(), datetime_f.minutes.c_str(),
+               datetime_f.seconds.c_str(), bmp180.temperature(), bmp180.pressure());
 
         sleep_ms(1000);
     }

@@ -1,5 +1,5 @@
-#include "ds3231/ds3231.h"
-#include "ds3231/ds3231_common.h"
+#include "ds3231.h"
+#include "ds3231_common.h"
 
 namespace DS3231
 {

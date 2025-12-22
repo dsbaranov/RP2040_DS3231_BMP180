@@ -1,5 +1,5 @@
-#include "bmp180/bmp180.h"
-#include "bmp180/bmp180_common.h"
+#include "bmp180.h"
+#include "bmp180_common.h"
 #include <cmath>
 namespace BMP180
 {

@@ -28,31 +28,15 @@ struct Size
     uint8_t width_;
     uint8_t height_;
     uint16_t area_;
-
     void CalculateArea();
 
   public:
     Size(uint8_t width, uint8_t height);
-
     uint8_t getWidth() const;
     uint8_t getHeight() const;
-    uint16_t getArea() const
-    {
-        return area_;
-    }
-    Size &setWidth(uint8_t value)
-    {
-        width_ = value;
-        CalculateArea();
-        return *this;
-    }
-
-    Size &setHeight(uint8_t value)
-    {
-        height_ = value;
-        CalculateArea();
-        return *this;
-    }
+    uint16_t getArea() const;
+    Size &setWidth(uint8_t value);
+    Size &setHeight(uint8_t value);
 };
 
 } // namespace ssd1315::domain

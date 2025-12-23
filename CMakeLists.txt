@@ -64,6 +64,7 @@ ${LIBDIR}/ssd1315/ssd1315_common.cpp
 ${LIBDIR}/ssd1315/ssd1315_domain.h
 ${LIBDIR}/ssd1315/ssd1315_domain.cpp
 ${LIBDIR}/ssd1315/ssd1315_registers.h
+${LIBDIR}/ssd1315/ssd1306_font.h
 
 )
 

@@ -5,6 +5,6 @@
 namespace ssd1315::REGISTERS
 {
 
-static const uint8_t ADDR = 0x78;
+static const uint8_t ADDR = 0x3C;
 
-}
+} // namespace ssd1315::REGISTERS

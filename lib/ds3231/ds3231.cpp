@@ -4,7 +4,7 @@
 namespace DS3231
 {
 
-DS3231::DS3231(i2c_inst_t *i2c) : I2CDevice(i2c, REGISTERS::ADDR)
+DS3231::DS3231(i2c_inst_t *i2c) : I2CDevice(i2c, REGISTERS::ADDR, 11u)
 {
 }
 

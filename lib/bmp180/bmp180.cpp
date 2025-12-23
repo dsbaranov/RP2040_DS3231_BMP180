@@ -4,7 +4,7 @@
 namespace BMP180
 {
 
-BMP180::BMP180(i2c_inst_t *i2c) : I2CDevice(i2c, REGISTERS::ADDR)
+BMP180::BMP180(i2c_inst_t *i2c) : I2CDevice(i2c, REGISTERS::ADDR, 22u)
 {
 }
 

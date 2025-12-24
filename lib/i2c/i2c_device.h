@@ -17,6 +17,7 @@ class I2CDevice
 
     size_t timeout_us = I2CDEVICE_DEFAULT_TIMEOUT_US;
     std::vector<uint8_t> data_buffer_;
+
     I2CDevice(i2c_inst_t *i2c, uint8_t device_address, size_t buffer_size, size_t timeout_us);
     I2CDevice(i2c_inst_t *i2c, uint8_t device_address, size_t buffer_size);
     I2CDevice(i2c_inst_t *i2c, uint8_t device_address);

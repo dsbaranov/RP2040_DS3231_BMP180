@@ -13,7 +13,7 @@ class SSD1315 : public I2CDevice
     std::vector<uint8_t> display_;
 
   public:
-    SSD1315(domain::DisplaySizeType type, domain::DisplayAlignment alignment);
+    SSD1315(i2c_inst_t *i2c, uint8_t width, uint8_t height);
 };
 
 } // namespace ssd1315

@@ -28,3 +28,5 @@
 
 1. RP2040 - I2C -> BMP180 -> SSD1315 -> DS3231 (WIP)
 2. RP2040 - SPI -> W25QXX
+3. RP2040 - IO -> Драйвер -> Гидрозатвор
+4. RP2040 -> UART -> USB_INTERFACE

@@ -3,7 +3,7 @@
 namespace ssd1315
 {
 SSD1315::SSD1315(i2c_inst_t *i2c, uint8_t width, uint8_t height)
-    : size_{width, height}, I2CDevice(i2c, REGISTERS::ADDR, size_.area())
+    : size_{width, height}, I2CDevice(i2c, REGISTERS::ADDR, width / 8u * height / 8u)
 {
 }
 } // namespace ssd1315

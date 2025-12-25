@@ -62,4 +62,31 @@ static const uint8_t CMD_DISPLAY_START_LINE = 0x40;
 // A[7:0] valid range: 01h to FFh
 static const uint8_t CMD_CONTRAST_CTRL = 0x81;
 
+// A0h, X[0]=0b: column address 0 is mapped to
+// SEG0 (RESET)
+// A1h, X[0]=1b: column address 127 is mapped to
+// SEG0
+static const uint8_t CMD_SEGMENT_REMAP = 0xA0;
+
+// A4h, X0=0b: Resume to RAM content display
+//  (RESET)
+//  Output follows RAM content
+// A5h, X0=1b: Entire display ON
+//  Output ignores RAM content
+static const uint8_t CMD_DISPLAY_ON = 0xA4;
+
+// A6h, X[0]=0b: Normal display (RESET)
+//  0 in RAM: OFF in display panel
+//  1 in RAM: ON in display panel
+// A7h, X[0]=1b: Inverse display
+//  0 in RAM: ON in display panel
+//  1 in RAM: OFF in display panel
+static const uint8_t CMD_INVERSE_DISPLAY = 0xA6;
+
+// Set MUX ratio to N+1 MUX
+// N=A[5:0] : from 16MUX to 64MUX.
+// RESET = 111111b (i.e. 63d, 64MUX)
+// A[5:0] from 0 to 14 are invalid entry
+static const uint8_t CMD_MULTIPLEX_RATIO = 0xA8;
+
 } // namespace ssd1315::REGISTERS

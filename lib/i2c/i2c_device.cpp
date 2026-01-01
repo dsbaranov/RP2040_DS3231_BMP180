@@ -61,3 +61,7 @@ void I2CDevice::write_register(uint8_t reg, size_t n_regs)
     }
     i2c_write_timeout_us(i2c_, device_address_, buffer, n_regs, false, timeout_us_);
 }
+
+I2CDevice::~I2CDevice(){
+    data_buffer_.clear();
+}

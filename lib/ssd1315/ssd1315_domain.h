@@ -1,12 +1,12 @@
 #pragma once
 #include <cstddef>
 #include <cstdint>
-namespace ssd1315::domain
+namespace SSD1315::domain
 {
 enum class DisplaySizeType
 {
-    w128h64,
-    w128h32
+    w128h32,
+    w128h64
 };
 
 enum class DisplayAlignment
@@ -24,9 +24,10 @@ struct Coordinate
 
 struct Size
 {
+    Size(uint8_t width, uint8_t height);
     uint8_t width;
     uint8_t height;
     uint16_t area() const;
 };
 
-} // namespace ssd1315::domain
+} // namespace SSD1315::domain

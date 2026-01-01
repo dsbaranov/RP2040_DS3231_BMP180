@@ -1,5 +1,6 @@
 #include "bmp180/bmp180.h"
 #include "ds3231/ds3231.h"
+#include "ssd1315/ssd1315.h"
 #include "hardware/i2c.h"
 #include "i2c/i2c_entity.h"
 #include "pico/stdlib.h"
@@ -24,21 +25,21 @@ int main()
     I2C i2c(I2C_PORT, I2C_SCL, I2C_SDA);
     DS3231::DS3231 ds3231(i2c.get());
     BMP180::BMP180 bmp180(i2c.get());
-
+    SSD1315::SSD1315 ssd1315(i2c.get(), SSD1315::domain::DisplaySizeType::w128h64);
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
 
     gpio_put(LED_PIN, true);
-    sleep_ms(1000);
+    sleep_ms(500);
     gpio_put(LED_PIN, false);
 
-    //     ds3231.SetDateTimeBlock(DS3231::domain::DateTime{.seconds = 0,
-    //                                                      .minutes = 44,
-    //                                                      .hours = 12,
-    //                                                      .dow = 1,
-    //                                                      .day = 22,
-    //                                                      .month = 12,
-    //                                                      .year = 25,
+    // ds3231.SetDateTimeBlock(DS3231::domain::DateTime{.seconds = 0,
+    //                                                      .minutes = 50,
+    //                                                      .hours = 14,
+    //                                                      .dow = 4,
+    //                                                      .day = 1,
+    //                                                      .month = 1,
+    //                                                      .year = 26,
     //                                                      .is_meridial = 0,
     //                                                      .is_pm = 0,
     //                                                      .age = 20});

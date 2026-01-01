@@ -1,5 +1,5 @@
 #include "ssd1315_common.h"
-namespace ssd1315::common
+namespace SSD1315::common
 {
 
 }

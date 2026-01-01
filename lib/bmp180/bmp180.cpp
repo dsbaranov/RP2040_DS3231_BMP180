@@ -159,33 +159,6 @@ void BMP180::GetPressure()
     }
 }
 
-// void BMP180::ExecuteCalculation()
-// {
-//     uint8_t oss_index = GetOssIndex();
-//     short PP1 =
-//         ((temperature_raw - coefficients.AC6) * coefficients.AC5 >> 15) +
-//         (coefficients.MC << 11) / (((temperature_raw - coefficients.AC6) * coefficients.AC5 >> 15) +
-//         coefficients.MD);
-//     unsigned short PP2 = ((uint32_t)coefficients.AC4 *
-//                           (uint32_t)(((((coefficients.AC3 * (PP1 - 4000)) >> 13) +
-//                                        ((coefficients.B1 * (((PP1 - 4000) * (PP1 - 4000)) >> 12)) >> 16) + 2) >>
-//                                       2) +
-//                                      32768)) >>
-//                          15;
-//     unsigned short PP3 = ((uint32_t)pressure_raw -
-//                           ((((coefficients.AC1 * 4 + ((coefficients.B2 * (((PP1 - 4000) * (PP1 - 4000)) >> 12)) >>
-//                           11) +
-//                               ((coefficients.AC2 * (PP1 - 4000)) >> 11))
-//                              << oss_index) +
-//                             2) >>
-//                            2)) *
-//                          (uint32_t)(50000UL >> oss_index);
-//     short PP4 = PP3 < 0x80000000 ? PP3 * 2 / PP2 : PP3 / PP2 * 2;
-//     temperature_ = ((float)PP1 + 8) / 160;
-//     pressure_ =
-//         ((float)PP4 + (((((PP4 >> 8) * (PP4 >> 8) * 3038) >> 16) + ((-7357 * PP4) >> 16) + 3791) >> 4)) / 133.322;
-// }
-
 void BMP180::ExecuteCalculation()
 {
     uint8_t oss = GetOssIndex();

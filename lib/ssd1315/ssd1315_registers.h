@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace ssd1315::REGISTERS
+namespace SSD1315::REGISTERS
 {
 
 // I2C Device address
@@ -384,4 +384,4 @@ static const uint8_t CMD_FADE_OUT_BLINKING = 0x23;
 // (2) Refer to section 1.4.2 for details
 static const uint8_t ZOOM_IN = 0xD6;
 
-} // namespace ssd1315::REGISTERS
+} // namespace SSD1315::REGISTERS

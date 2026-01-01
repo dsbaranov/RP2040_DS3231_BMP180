@@ -1,9 +1,10 @@
 #include "bmp180/bmp180.h"
 #include "ds3231/ds3231.h"
-#include "ssd1315/ssd1315.h"
 #include "hardware/i2c.h"
 #include "i2c/i2c_entity.h"
 #include "pico/stdlib.h"
+#include "ssd1315/ssd1315.h"
+#include "ssd1315/ssd1315_example.h"
 #include <cstring>
 #include <iomanip>
 #include <iostream>

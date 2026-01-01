@@ -3,7 +3,10 @@
 #include "hardware/i2c.h"
 #include "pico/stdlib.h"
 #include <cstdint>
+#include <cstring>
 
+namespace example
+{
 #define OLED_ADDR 0x3C // Adresse I2C 7-bit standard (0x78 >> 1)
 #define WIDTH 128
 #define HEIGHT 64
@@ -33,3 +36,4 @@ class SSD1315
     void sendCommand(uint8_t cmd);
     void sendData(uint8_t *data, size_t len);
 };
+}; // namespace example

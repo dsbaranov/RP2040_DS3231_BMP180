@@ -1,4 +1,6 @@
-#include "ssd1315.h"
+#include "ssd1315_example.h"
+namespace example
+{
 
 // Simple 8x8 font for ASCII characters 32-126
 const uint8_t font8x8[95][8] = {
@@ -227,3 +229,4 @@ void SSD1315::clearRect(int x, int y, int w, int h)
         }
     }
 }
+}; // namespace example

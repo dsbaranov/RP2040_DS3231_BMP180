@@ -14,6 +14,7 @@ class SSD1315 : public I2CDevice
 
   public:
     SSD1315(i2c_inst_t *i2c, domain::DisplaySizeType type);
+    ~SSD1315();
 };
 
 } // namespace SSD1315

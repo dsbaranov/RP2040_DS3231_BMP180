@@ -18,7 +18,7 @@ extern const uint8_t font8x8[95][8];
 class SSD1315
 {
   public:
-    SSD1315(i2c_inst_t *i2c, uint sda, uint scl);
+    SSD1315(i2c_inst_t *i2c);
 
     void init();
     void clear();

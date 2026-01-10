@@ -66,7 +66,7 @@ const uint8_t font8x8[95][8] = {
     // Add more characters as needed... (for now just numbers and basic punctuation)
 };
 
-SSD1315::SSD1315(i2c_inst_t *i2c, uint sda, uint scl) : i2c(i2c)
+SSD1315::SSD1315(i2c_inst_t *i2c) : i2c(i2c)
 {
     // Note: I2C initialization should be done externally
     memset(buffer, 0, sizeof(buffer));

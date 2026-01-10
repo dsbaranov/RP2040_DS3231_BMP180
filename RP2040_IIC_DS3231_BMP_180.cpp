@@ -27,9 +27,8 @@ int main()
     DS3231::DS3231 ds3231(i2c.get());
     BMP180::BMP180 bmp180(i2c.get());
     SSD1315::SSD1315 ssd1315(i2c.get(), SSD1315::domain::DisplaySizeType::w128h64);
-    gpio_init(LED_PIN);
+    example::SSD1315 example_display(i2c.get());
     gpio_set_dir(LED_PIN, GPIO_OUT);
-
     gpio_put(LED_PIN, true);
     sleep_ms(500);
     gpio_put(LED_PIN, false);
@@ -45,17 +44,13 @@ int main()
     //                                                      .is_pm = 0,
     //                                                      .age = 20});
 
-    ds3231.ReadControls();
-    printf("OLD : EOSC:%i BBSQW:%i CONV:%i RS1:%i RS2:%i INTCN:%i A2IE:%i A1IE:%i\n", ds3231.controls.EOSC,
-           ds3231.controls.BBSQW, ds3231.controls.CONV, ds3231.controls.RS2, ds3231.controls.RS1, ds3231.controls.INTCN,
-           ds3231.controls.A2IE, ds3231.controls.A1IE);
     ds3231.Init();
-    ds3231.ReadControls();
-    printf("NEW : EOSC:%i BBSQW:%i CONV:%i RS1:%i RS2:%i INTCN:%i A2IE:%i A1IE:%i\n", ds3231.controls.EOSC,
-           ds3231.controls.BBSQW, ds3231.controls.CONV, ds3231.controls.RS2, ds3231.controls.RS1, ds3231.controls.INTCN,
-           ds3231.controls.A2IE, ds3231.controls.A1IE);
-
     bmp180.GetCoefficients();
+    bmp180.Init();
+
+    example_display.init();
+    example_display.drawString(0, 16, "Hello");
+    example_display.display();
 
     printf("size of size_t - %i\n", sizeof(size_t));
 

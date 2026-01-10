@@ -67,6 +67,11 @@ void BMP180::Flush()
     write_register(REGISTERS::SOFT_RESET, 1);
 }
 
+void BMP180::Init()
+{
+    GetCoefficients();
+}
+
 uint8_t BMP180::GetOssIndex() const
 {
     if (oss_ == domain::MeasureDiscretion::x1)

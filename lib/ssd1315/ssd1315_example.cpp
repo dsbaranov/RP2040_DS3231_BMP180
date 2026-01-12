@@ -175,7 +175,7 @@ void SSD1315::drawChar(int x, int y, char c)
 void SSD1315::drawString(int x, int y, const char *str)
 {
     int pos_x = x;
-    while (*str && pos_x < WIDTH - 8)
+    while (*str != '\0' && pos_x < WIDTH - 8)
     {
         drawChar(pos_x, y, *str);
         pos_x += 8;

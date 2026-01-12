@@ -49,10 +49,8 @@ int main()
     bmp180.Init();
 
     example_display.init();
-    example_display.drawString(0, 16, "Hello");
+    example_display.drawChar(0, 8, 'I');
     example_display.display();
-
-    printf("size of size_t - %i\n", sizeof(size_t));
 
     while (true)
     {

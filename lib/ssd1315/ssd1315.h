@@ -11,8 +11,9 @@ class SSD1315 : public I2CDevice
   private:
     domain::Size size_;
     std::vector<uint8_t> display_;
+    uint16_t area;
 
-    void SetPixel(uint8_t x, uint8_t y, bool on = false);
+    void setPixel(uint8_t x, uint8_t y, bool on = false);
 
   public:
     SSD1315(i2c_inst_t *i2c, domain::DisplaySizeType type);

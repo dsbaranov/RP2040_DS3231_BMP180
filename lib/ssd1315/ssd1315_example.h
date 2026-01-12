@@ -8,7 +8,7 @@
 namespace example
 {
 #define OLED_ADDR 0x3C // Adresse I2C 7-bit standard (0x78 >> 1)
-#define WIDTH 128
+#define WIDTH 131
 #define HEIGHT 64
 #define PAGES (HEIGHT / 8)
 

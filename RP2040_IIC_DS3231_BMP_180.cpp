@@ -27,7 +27,7 @@ int main()
     DS3231::DS3231 ds3231(i2c.get());
     BMP180::BMP180 bmp180(i2c.get());
     SSD1315::SSD1315 ssd1315(i2c.get(), SSD1315::domain::DisplaySizeType::w128h64);
-    example::SSD1315 example_display(i2c.get());
+    // example::SSD1315 example_display(i2c.get());
     gpio_set_dir(LED_PIN, GPIO_OUT);
     gpio_put(LED_PIN, true);
     sleep_ms(500);
@@ -48,9 +48,54 @@ int main()
     bmp180.GetCoefficients();
     bmp180.Init();
 
-    example_display.init();
-    example_display.drawChar(0, 8, 'I');
-    example_display.display();
+    ssd1315.Init();
+    ssd1315.setPixel(63, 0, true);
+    ssd1315.setPixel(64, 0, true);
+    ssd1315.setPixel(65, 0, true);
+    ssd1315.setPixel(66, 0, true);
+    // center
+    ssd1315.setPixel(64, 31, true);
+    ssd1315.setPixel(65, 31, true);
+    ssd1315.setPixel(64, 32, true);
+    ssd1315.setPixel(65, 32, true);
+    // bottom center
+    ssd1315.setPixel(64, 63, true);
+    ssd1315.setPixel(65, 63, true);
+    // left center
+    ssd1315.setPixel(0, 30, true);
+    ssd1315.setPixel(0, 31, true);
+    ssd1315.setPixel(0, 32, true);
+    ssd1315.setPixel(0, 33, true);
+    // right center
+    ssd1315.setPixel(128, 30, true);
+    ssd1315.setPixel(128, 31, true);
+    ssd1315.setPixel(127, 31, true);
+    ssd1315.setPixel(127, 32, true);
+    ssd1315.setPixel(128, 32, true);
+    ssd1315.setPixel(128, 33, true);
+
+    ssd1315.draw();
+
+    // example_display.init();
+    // // top center
+    // example_display.setPixel(64, 0, true);
+    // example_display.setPixel(65, 0, true);
+    // // center
+    // example_display.setPixel(64, 31, true);
+    // example_display.setPixel(65, 31, true);
+    // example_display.setPixel(64, 32, true);
+    // example_display.setPixel(65, 32, true);
+    // // bottom center
+    // example_display.setPixel(64, 63, true);
+    // example_display.setPixel(65, 63, true);
+    // // left center
+    // example_display.setPixel(2, 31, true);
+    // example_display.setPixel(2, 32, true);
+    // // right center
+    // example_display.setPixel(129, 31, true);
+    // example_display.setPixel(129, 32, true);
+
+    // example_display.display();
 
     while (true)
     {

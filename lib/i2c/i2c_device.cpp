@@ -53,15 +53,13 @@ void I2CDevice::read_register(uint8_t reg, size_t n_regs)
  */
 void I2CDevice::write_register(uint8_t reg, size_t n_regs)
 {
-    uint8_t buffer[++n_regs];
+    std::vector<uint8_t> buffer(++n_regs, 0);
     buffer[0] = reg;
-    for (uint reg_cnt = 0; reg_cnt < n_regs; ++reg_cnt)
-    {
-        buffer[reg_cnt + 1] = data_buffer_.at(reg_cnt);
-    }
-    i2c_write_timeout_us(i2c_, device_address_, buffer, n_regs, false, timeout_us_);
+    std::copy(data_buffer_.begin(), data_buffer_.begin() + n_regs - 1, buffer.begin() + 1);
+    i2c_write_timeout_us(i2c_, device_address_, buffer.data(), n_regs, false, timeout_us_);
 }
 
-I2CDevice::~I2CDevice(){
+I2CDevice::~I2CDevice()
+{
     data_buffer_.clear();
 }

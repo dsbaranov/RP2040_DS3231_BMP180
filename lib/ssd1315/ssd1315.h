@@ -12,13 +12,14 @@ class SSD1315 : public I2CDevice
     const static uint8_t PAGES = 8u;
 
     domain::Size size_;
-    std::vector<uint8_t> display_;
 
     void sendCmd(uint8_t command);
 
     size_t display_size_;
 
   public:
+    std::vector<uint8_t> display_;
+
     SSD1315(i2c_inst_t *i2c, domain::DisplaySizeType type);
     SSD1315() = delete;
     SSD1315(const SSD1315 &) = delete;

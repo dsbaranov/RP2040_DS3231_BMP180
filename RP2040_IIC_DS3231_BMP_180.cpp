@@ -5,10 +5,10 @@
 #include "pico/stdlib.h"
 #include "ssd1315/ssd1315.h"
 #include "ssd1315/ssd1315_example.h"
+#include <cstddef>
 #include <cstring>
 #include <iomanip>
 #include <iostream>
-#include <stdio.h>
 
 // I2C defines
 // This example will use I2C0 on GPIO8 (SDA) and GPIO9 (SCL) running at 400KHz.
@@ -30,7 +30,7 @@ int main()
     // example::SSD1315 example_display(i2c.get());
     gpio_set_dir(LED_PIN, GPIO_OUT);
     gpio_put(LED_PIN, true);
-    sleep_ms(500);
+    sleep_ms(3000);
     gpio_put(LED_PIN, false);
 
     // ds3231.SetDateTimeBlock(DS3231::domain::DateTime{.seconds = 0,
@@ -49,10 +49,17 @@ int main()
     bmp180.Init();
 
     ssd1315.Init();
-    ssd1315.setPixel(63, 0, true);
+    // left top
+    ssd1315.setPixel(0, 0, true);
+    // right top
+    ssd1315.setPixel(127, 0, true);
+    // left bottom
+    ssd1315.setPixel(0, 63, true);
+    // right bottom
+    ssd1315.setPixel(127, 63, true);
+    // top center
     ssd1315.setPixel(64, 0, true);
     ssd1315.setPixel(65, 0, true);
-    ssd1315.setPixel(66, 0, true);
     // center
     ssd1315.setPixel(64, 31, true);
     ssd1315.setPixel(65, 31, true);
@@ -62,40 +69,24 @@ int main()
     ssd1315.setPixel(64, 63, true);
     ssd1315.setPixel(65, 63, true);
     // left center
-    ssd1315.setPixel(0, 30, true);
     ssd1315.setPixel(0, 31, true);
     ssd1315.setPixel(0, 32, true);
-    ssd1315.setPixel(0, 33, true);
     // right center
-    ssd1315.setPixel(128, 30, true);
-    ssd1315.setPixel(128, 31, true);
     ssd1315.setPixel(127, 31, true);
     ssd1315.setPixel(127, 32, true);
-    ssd1315.setPixel(128, 32, true);
-    ssd1315.setPixel(128, 33, true);
 
     ssd1315.draw();
 
-    // example_display.init();
-    // // top center
-    // example_display.setPixel(64, 0, true);
-    // example_display.setPixel(65, 0, true);
-    // // center
-    // example_display.setPixel(64, 31, true);
-    // example_display.setPixel(65, 31, true);
-    // example_display.setPixel(64, 32, true);
-    // example_display.setPixel(65, 32, true);
-    // // bottom center
-    // example_display.setPixel(64, 63, true);
-    // example_display.setPixel(65, 63, true);
-    // // left center
-    // example_display.setPixel(2, 31, true);
-    // example_display.setPixel(2, 32, true);
-    // // right center
-    // example_display.setPixel(129, 31, true);
-    // example_display.setPixel(129, 32, true);
-
-    // example_display.display();
+    std::cout << "display area : " << ssd1315.display_.size() << std::endl;
+    for (uint8_t page = 0; page < 8; ++page)
+    {
+        for (uint8_t col = 0; col < 131; ++col)
+        {
+            std::cout << static_cast<int>(ssd1315.display_.at(page * 131 + col));
+        }
+        std::cout << " ||" << std::endl;
+    }
+    std::cout << std::endl;
 
     while (true)
     {

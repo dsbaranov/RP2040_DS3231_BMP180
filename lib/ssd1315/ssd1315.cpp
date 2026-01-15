@@ -8,15 +8,16 @@ void SSD1315::setPixel(uint8_t x, uint8_t y, bool on)
 {
     if (x >= size_.width || y >= size_.height)
         return;
+    x += 2;
     uint8_t shift = y % PAGES;
     uint16_t index = y / PAGES * size_.width + x;
     if (on)
     {
-        data_buffer_[index] |= (1 << shift);
+        display_[index] |= (1 << shift);
     }
     else
     {
-        data_buffer_[index] &= ~(1 << shift);
+        display_[index] &= ~(1 << shift);
     }
 }
 
@@ -27,10 +28,9 @@ void SSD1315::sendCmd(uint8_t command)
 }
 
 SSD1315::SSD1315(i2c_inst_t *i2c, domain::DisplaySizeType type)
-    : size_{uint8_t(128), uint8_t(32) * (static_cast<uint8_t>(type) + uint8_t(1))},
-      I2CDevice(i2c, REGISTERS::ADDR, 129u)
+    : size_(131, type == domain::DisplaySizeType::w128h64 ? 64 : 32), I2CDevice(i2c, REGISTERS::ADDR, 129u),
+      display_(size_.area() / PAGES, 0)
 {
-    display_.resize(size_.area() / PAGES, 0u);
     display_size_ = display_.size();
 }
 
@@ -72,7 +72,7 @@ void SSD1315::draw()
         sendCmd(0x10);        // Set higher column start address
         auto begin = display_.begin() + (page * (size_.width));
         size_t begin_ = std::distance(display_.begin(), begin);
-        auto end = begin + size_.width;
+        auto end = begin + size_.width - 1;
         size_t end_ = std::distance(display_.begin(), end);
         std::copy(begin, end, data_buffer_.begin());
         write_register(0x40, size_.width);

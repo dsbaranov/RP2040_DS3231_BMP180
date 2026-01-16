@@ -67,6 +67,7 @@ ${LIBDIR}/ssd1315/ssd1315_registers.h
 ${LIBDIR}/ssd1315/ssd1306_font.h
 ${LIBDIR}/ssd1315/ssd1315_example.h
 ${LIBDIR}/ssd1315/ssd1315_example.cpp
+${LIBDIR}/ssd1315/ssd1315_font.h
 )
 
 # Add executable. Default name is the project name, version 0.1

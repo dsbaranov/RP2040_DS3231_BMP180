@@ -48,7 +48,7 @@ int main()
     bmp180.GetCoefficients();
     bmp180.Init();
 
-    ssd1315.Init();
+    ssd1315.init();
     // left top
     ssd1315.setPixel(0, 0, true);
     // right top
@@ -74,6 +74,7 @@ int main()
     // right center
     ssd1315.setPixel(127, 31, true);
     ssd1315.setPixel(127, 32, true);
+    ssd1315.setString({"Hello!"});
 
     ssd1315.draw();
 

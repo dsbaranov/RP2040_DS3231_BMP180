@@ -28,7 +28,8 @@ class BMP180 : public I2CDevice
     void Init();
 
   private:
-    double temperature_ = 0.f, pressure_ = 0.f;
+    double temperature_ = 0.f;
+    unsigned pressure_ = 0.f;
     domain::Coefficients coefficients;
     long temperature_raw = 0, pressure_raw = 0;
     domain::MeasureDiscretion oss_ = domain::MeasureDiscretion::x1;

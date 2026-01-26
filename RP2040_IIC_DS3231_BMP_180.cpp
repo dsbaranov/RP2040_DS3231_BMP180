@@ -4,7 +4,8 @@
 #include "i2c/i2c_entity.h"
 #include "pico/stdlib.h"
 #include "ssd1315/ssd1315.h"
-#include "ssd1315/ssd1315_example.h"
+
+// #include "ssd1315/ssd1315_example.h"
 #include <cstddef>
 #include <cstring>
 #include <iomanip>
@@ -34,15 +35,15 @@ int main()
     gpio_put(LED_PIN, false);
 
     // ds3231.SetDateTimeBlock(DS3231::domain::DateTime{.seconds = 0,
-    //                                                      .minutes = 50,
-    //                                                      .hours = 14,
-    //                                                      .dow = 4,
-    //                                                      .day = 1,
-    //                                                      .month = 1,
-    //                                                      .year = 26,
-    //                                                      .is_meridial = 0,
-    //                                                      .is_pm = 0,
-    //                                                      .age = 20});
+    //                                                  .minutes = 52,
+    //                                                  .hours = 14,
+    //                                                  .dow = 1,
+    //                                                  .day = 26,
+    //                                                  .month = 1,
+    //                                                  .year = 26,
+    //                                                  .is_meridial = 0,
+    //                                                  .is_pm = 0,
+    //                                                  .age = 20});
 
     ds3231.Init();
     bmp180.GetCoefficients();
@@ -74,29 +75,43 @@ int main()
     // right center
     ssd1315.setPixel(127, 31, true);
     ssd1315.setPixel(127, 32, true);
-    ssd1315.setString({"Hello!"});
-
-    ssd1315.draw();
-
-    std::cout << "display area : " << ssd1315.display_.size() << std::endl;
-    for (uint8_t page = 0; page < 8; ++page)
-    {
-        for (uint8_t col = 0; col < 131; ++col)
-        {
-            std::cout << static_cast<int>(ssd1315.display_.at(page * 131 + col));
-        }
-        std::cout << " ||" << std::endl;
-    }
-    std::cout << std::endl;
-
+    ssd1315.render();
+    sleep_ms(1000);
+    ssd1315.clear();
+    std::stringstream buf_ss("");
     while (true)
     {
         bmp180.ReadData();
         auto datetime_f = ds3231.GetDateTime().AsFormatted();
         std::cout << datetime_f.day.c_str() << '.' << datetime_f.month.c_str() << '.' << datetime_f.year.c_str() << ' '
                   << datetime_f.hours.c_str() << ':' << datetime_f.minutes.c_str() << ':' << datetime_f.seconds.c_str()
-                  << ' ' << std::setw(5) << std::setprecision(3) << bmp180.temperature() << "C " << std::setprecision(4)
+                  << ' ' << std::setprecision(3) << bmp180.temperature() << "C " << std::setprecision(4)
                   << bmp180.pressure() << "mm" << std::endl;
+
+        buf_ss << std::setw(5) << std::setprecision(3) << bmp180.temperature();
+        ssd1315.setCursor(0, 0)
+            .setString(datetime_f.day)
+            .setChar('.')
+            .setString(datetime_f.month)
+            .setChar('.')
+            .setString(datetime_f.year)
+            .setChar(' ')
+            .setCursor(0, 8)
+            .setString(datetime_f.hours)
+            .setChar(':')
+            .setString(datetime_f.minutes)
+            .setChar(':')
+            .setString(datetime_f.seconds)
+            .setCursor(0, 16)
+            .setString(buf_ss.str())
+            .setDegree()
+            .setChar('C')
+            .setChar(' ');
+        buf_ss.str("");
+        buf_ss << bmp180.pressure() << "mm";
+        ssd1315.setCursor(0, 24).setString(buf_ss.str());
+        ssd1315.render();
+        buf_ss.str("");
         sleep_ms(1000);
     }
 }

@@ -197,6 +197,6 @@ void BMP180::ExecuteCalculation()
     X1 = (X1 * 3038) >> 16;
     X2 = (-7357 * (pressure_raw)) >> 16;
     pressure_raw = pressure_raw + ((X1 + X2 + 3791) >> 4);
-    pressure_ = ((double)pressure_raw) * 0.7500615f / 100.f;
+    pressure_ = static_cast<unsigned>(((float)pressure_raw) * 0.7500615f / 100.f);
 }
 } // namespace BMP180

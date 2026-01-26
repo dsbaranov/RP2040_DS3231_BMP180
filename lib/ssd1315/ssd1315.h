@@ -1,6 +1,7 @@
 #pragma once
 #include "i2c/i2c_device.h"
 #include "ssd1315_domain.h"
+
 #include <string>
 #include <vector>
 namespace SSD1315
@@ -13,7 +14,8 @@ class SSD1315 : public I2CDevice
 
     domain::Size size_;
     domain::Coordinate cursor_ = {0, 0};
-    void sendCmd(uint8_t command);
+    void sendCommand(uint8_t command);
+    void drawByteVector(uint8_t x, uint8_t y, const std::vector<uint8_t> &src);
     size_t display_size_;
 
   public:
@@ -26,13 +28,18 @@ class SSD1315 : public I2CDevice
 
     SSD1315 &init();
 
-    SSD1315 &draw();
-    SSD1315 &setPixel(uint8_t x, uint8_t y, bool on = false);
+    SSD1315 &render();
+    SSD1315 &setPixel(uint8_t x, uint8_t y, uint8_t on = false);
     SSD1315 &setCursor(uint8_t x, uint8_t y);
     SSD1315 &setChar(uint8_t x, uint8_t y, char c);
     SSD1315 &setChar(char c);
     SSD1315 &setString(std::string &&str);
+    SSD1315 &setString(const std::string &str);
     SSD1315 &setString(uint8_t x, uint8_t y, const std::string &str);
+    SSD1315 &setDegree(uint8_t x, uint8_t y);
+    SSD1315 &setDegree();
+    SSD1315 &clearRect();
+    SSD1315 &clear();
 
     ~SSD1315();
 };

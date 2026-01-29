@@ -313,7 +313,7 @@ void DS3231::SetDateTimeBlock(const domain::DateTime &datetime)
     I2CDevice::write_register(REGISTERS::SECOND, reg_cnt);
 }
 
-void DS3231::Init()
+void DS3231::init()
 {
     ReadControls();
     controls.EOSC = 0;

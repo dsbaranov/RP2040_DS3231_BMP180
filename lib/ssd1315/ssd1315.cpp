@@ -3,14 +3,15 @@
 #include "ssd1315_registers.h"
 #include <algorithm>
 #include <cctype>
+#include <cmath>
 
 namespace SSD1315
 {
 SSD1315 &SSD1315::setPixel(uint8_t x, uint8_t y, uint8_t on)
 {
+    x += 2;
     if (x >= size_.width || y >= size_.height)
         return *this;
-    x += 2;
     uint8_t shift = y % PAGES;
     uint16_t index = y / PAGES * size_.width + x;
     if (on != 0)
@@ -127,7 +128,6 @@ SSD1315::SSD1315(i2c_inst_t *i2c, domain::DisplaySizeType type)
     : size_(131, type == domain::DisplaySizeType::w128h64 ? 64 : 32), I2CDevice(i2c, REGISTERS::ADDR, 129u),
       display_(size_.area() / PAGES, 0), cursor_{0, 0}
 {
-    display_size_ = display_.size();
 }
 
 SSD1315 &SSD1315::init()
@@ -156,7 +156,7 @@ SSD1315 &SSD1315::init()
     sendCommand(0x40); // Set VCOMH
     sendCommand(0xA4); // Entire display on
     sendCommand(0xA6); // Set normal display
-    sendCommand(0xAF); // Display on
+    sendCommand(0xAF); // Display ons
     return *this;
 }
 

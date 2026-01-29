@@ -16,7 +16,7 @@ class DS3231 : public I2CDevice
     DS3231(const DS3231 &) = delete;
     DS3231(DS3231 &&) = delete;
 
-    void Init();
+    void init();
 
     uint8_t GetSeconds();
     uint8_t GetMinutes();

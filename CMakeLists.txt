@@ -68,6 +68,9 @@ ${LIBDIR}/ssd1315/ssd1306_font.h
 ${LIBDIR}/ssd1315/ssd1315_example.h
 ${LIBDIR}/ssd1315/ssd1315_example.cpp
 ${LIBDIR}/ssd1315/ssd1315_font.h
+
+${LIBDIR}/spi/spi_entity.h
+${LIBDIR}/spi/spi_entity.cpp
 )
 
 # Add executable. Default name is the project name, version 0.1
@@ -94,7 +97,7 @@ target_include_directories(RP2040_IIC_DS3231_BMP_180 PRIVATE
 
 # Add any user requested libraries
 target_link_libraries(RP2040_IIC_DS3231_BMP_180 
-        hardware_i2c
+        hardware_i2c hardware_spi
         )
 
 pico_add_extra_outputs(RP2040_IIC_DS3231_BMP_180)

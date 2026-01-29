@@ -14,7 +14,7 @@ bool BMP180::Ping()
     return data_buffer_[0] == 0x55;
 }
 
-void BMP180::GetCoefficients()
+void BMP180::getCoefficients()
 {
     read_register(REGISTERS::AC1, 22);
     uint8_t counter = 0;
@@ -56,7 +56,7 @@ float BMP180::temperature()
 {
     return temperature_;
 }
-float BMP180::pressure()
+double BMP180::pressure()
 {
     return pressure_;
 }
@@ -67,9 +67,9 @@ void BMP180::Flush()
     write_register(REGISTERS::SOFT_RESET, 1);
 }
 
-void BMP180::Init()
+void BMP180::init()
 {
-    GetCoefficients();
+    getCoefficients();
 }
 
 uint8_t BMP180::GetOssIndex() const
@@ -197,6 +197,6 @@ void BMP180::ExecuteCalculation()
     X1 = (X1 * 3038) >> 16;
     X2 = (-7357 * (pressure_raw)) >> 16;
     pressure_raw = pressure_raw + ((X1 + X2 + 3791) >> 4);
-    pressure_ = static_cast<unsigned>(((float)pressure_raw) * 0.7500615f / 100.f);
+    pressure_ = static_cast<double>(static_cast<unsigned>(static_cast<double>(pressure_raw) * 0.07500615f)) / 10.f;
 }
 } // namespace BMP180

@@ -16,7 +16,6 @@ class SSD1315 : public I2CDevice
     domain::Coordinate cursor_ = {0, 0};
     void sendCommand(uint8_t command);
     void drawByteVector(uint8_t x, uint8_t y, const std::vector<uint8_t> &src);
-    size_t display_size_;
 
   public:
     std::vector<uint8_t> display_;

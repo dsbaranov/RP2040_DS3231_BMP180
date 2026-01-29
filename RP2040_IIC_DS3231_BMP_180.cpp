@@ -3,11 +3,15 @@
 #include "hardware/i2c.h"
 #include "i2c/i2c_entity.h"
 #include "pico/stdlib.h"
+#include "spi/spi_entity.h"
 #include "ssd1315/ssd1315.h"
+
+#include <cmath>
 
 // #include "ssd1315/ssd1315_example.h"
 #include <cstddef>
 #include <cstring>
+#include <deque>
 #include <iomanip>
 #include <iostream>
 
@@ -18,6 +22,14 @@
 #define I2C_SDA 8
 #define I2C_SCL 9
 #define LED_PIN 25
+
+double pressure_max = 0, pressure_min = 9999.9;
+
+static const uint8_t max_graph_x = 60;
+static const uint8_t max_graph_y = 54;
+
+std::vector<double> graph;
+uint8_t graph_counter = 0;
 
 int main()
 {
@@ -35,81 +47,151 @@ int main()
     gpio_put(LED_PIN, false);
 
     // ds3231.SetDateTimeBlock(DS3231::domain::DateTime{.seconds = 0,
-    //                                                  .minutes = 52,
-    //                                                  .hours = 14,
-    //                                                  .dow = 1,
-    //                                                  .day = 26,
+    //                                                  .minutes = 59,
+    //                                                  .hours = 15,
+    //                                                  .dow = 3,
+    //                                                  .day = 28,
     //                                                  .month = 1,
     //                                                  .year = 26,
     //                                                  .is_meridial = 0,
     //                                                  .is_pm = 0,
     //                                                  .age = 20});
 
-    ds3231.Init();
-    bmp180.GetCoefficients();
-    bmp180.Init();
-
+    ds3231.init();
+    bmp180.init();
     ssd1315.init();
-    // left top
-    ssd1315.setPixel(0, 0, true);
-    // right top
-    ssd1315.setPixel(127, 0, true);
-    // left bottom
-    ssd1315.setPixel(0, 63, true);
-    // right bottom
-    ssd1315.setPixel(127, 63, true);
-    // top center
-    ssd1315.setPixel(64, 0, true);
-    ssd1315.setPixel(65, 0, true);
-    // center
-    ssd1315.setPixel(64, 31, true);
-    ssd1315.setPixel(65, 31, true);
-    ssd1315.setPixel(64, 32, true);
-    ssd1315.setPixel(65, 32, true);
-    // bottom center
-    ssd1315.setPixel(64, 63, true);
-    ssd1315.setPixel(65, 63, true);
-    // left center
-    ssd1315.setPixel(0, 31, true);
-    ssd1315.setPixel(0, 32, true);
-    // right center
-    ssd1315.setPixel(127, 31, true);
-    ssd1315.setPixel(127, 32, true);
-    ssd1315.render();
-    sleep_ms(1000);
     ssd1315.clear();
     std::stringstream buf_ss("");
+    graph.reserve(max_graph_x);
+    uint8_t y0 = 63u;
+
     while (true)
     {
+        ssd1315.clearRect();
         bmp180.ReadData();
-        auto datetime_f = ds3231.GetDateTime().AsFormatted();
-        std::cout << datetime_f.day.c_str() << '.' << datetime_f.month.c_str() << '.' << datetime_f.year.c_str() << ' '
-                  << datetime_f.hours.c_str() << ':' << datetime_f.minutes.c_str() << ':' << datetime_f.seconds.c_str()
-                  << ' ' << std::setprecision(3) << bmp180.temperature() << "C " << std::setprecision(4)
-                  << bmp180.pressure() << "mm" << std::endl;
 
-        buf_ss << std::setw(5) << std::setprecision(3) << bmp180.temperature();
+        if (graph.size() < max_graph_x)
+        {
+            graph.push_back(bmp180.pressure());
+        }
+        else
+        {
+            graph[graph_counter++] = bmp180.pressure();
+            if (graph_counter >= max_graph_x)
+            {
+                graph_counter = 0;
+            }
+        }
+
+        pressure_max = std::max(pressure_max, bmp180.pressure());
+        pressure_min = std::min(pressure_min, bmp180.pressure());
+
+        auto datetime_f = ds3231.GetDateTime().AsFormatted();
+        // std::cout << datetime_f.day.c_str() << '.' << datetime_f.month.c_str() << '.' << datetime_f.year.c_str() << '
+        // '
+        //           << datetime_f.hours.c_str() << ':' << datetime_f.minutes.c_str() << ':' <<
+        //           datetime_f.seconds.c_str()
+        //           << ' ' << std::setprecision(3) << bmp180.temperature() << "C " << std::setprecision(4)
+        //           << bmp180.pressure() << "mm" << std::endl;
+
+        buf_ss << std::setw(4) << std::setprecision(3) << bmp180.temperature();
         ssd1315.setCursor(0, 0)
+            .setString(datetime_f.hours)
+            .setChar(':')
+            .setString(datetime_f.minutes)
+            .setCursor(68, 0)
             .setString(datetime_f.day)
             .setChar('.')
             .setString(datetime_f.month)
             .setChar('.')
             .setString(datetime_f.year)
-            .setChar(' ')
-            .setCursor(0, 8)
-            .setString(datetime_f.hours)
-            .setChar(':')
-            .setString(datetime_f.minutes)
-            .setChar(':')
-            .setString(datetime_f.seconds)
-            .setCursor(0, 16)
+            .setCursor(92, 8)
             .setString(buf_ss.str())
             .setDegree()
             .setChar('C')
             .setChar(' ');
         buf_ss.str("");
-        buf_ss << bmp180.pressure() << "mm";
-        ssd1315.setCursor(0, 24).setString(buf_ss.str());
+        buf_ss << std::setprecision(4) << pressure_max;
+        ssd1315.setCursor(0, 40).setString(buf_ss.str());
+
+        buf_ss.str("");
+        buf_ss << std::setprecision(4) << pressure_min;
+        ssd1315.setCursor(0, 56).setString(buf_ss.str());
+
+        buf_ss.str("");
+        buf_ss << std::setprecision(4) << bmp180.pressure();
+
+        double graph_ratio = (pressure_max - pressure_min) / 24.;
+        // uint8_t x = 31u + std::distance(graph.begin(), graph_it);
+        // uint8_t y = 63 - (*graph_it - pressure_min) / graph_ratio;
+        // std::cout << "(" << (unsigned)x << "," << (unsigned)y << ")";
+        // ssd1315.setPixel(x, y, 1u);
+        if (graph.size() > 0)
+        {
+            if (graph.size() < max_graph_x)
+            {
+
+                for (uint8_t counter = 0; counter < graph.size(); counter++)
+                {
+                    uint8_t x = 31u + counter;
+                    uint8_t y = 63u - (graph.at(counter) - pressure_min) / graph_ratio;
+                    if (y == 0)
+                        break;
+                    uint8_t y_from = std::max(y0, y);
+                    uint8_t y_to = std::min(y0, y);
+                    if (counter == graph.size() - 1)
+                        ssd1315.setCursor(x + 1, y0 <= 55 ? y0 : 55u)
+                            .setString("     ")
+                            .setCursor(x + 2, y <= 55 ? y : 55u)
+                            .setString(buf_ss.str());
+                    for (; y_from >= y_to; --y_from)
+                    {
+                        ssd1315.setPixel(x, y_from, 1u);
+                    }
+
+                    std::cout << (int)y0 << "->" << (int)y << " ";
+                    y0 = y;
+                }
+            }
+            else
+            {
+                uint8_t abs_counter = 0;
+                ssd1315.setCursor(97, y0).setString("     ");
+                for (uint8_t counter(graph_counter); counter < graph.size(); counter++)
+                {
+                    uint8_t x = 31u + abs_counter++;
+                    uint8_t y = 63u - (graph.at(counter) - pressure_min) / graph_ratio;
+                    if (y == 0)
+                        break;
+                    uint8_t y_from = (int)std::max(y0, y);
+                    uint8_t y_to = (int)std::min(y0, y);
+                    for (; y_from >= y_to; --y_from)
+                    {
+                        ssd1315.setPixel(x, y_from, 1u);
+                    }
+                    std::cout << (int)y0 << "->" << (int)y << " ";
+                    y0 = y;
+                }
+                for (uint8_t counter(0); counter < graph_counter; counter++)
+                {
+                    uint8_t x = 31u + abs_counter++;
+                    uint8_t y = 63u - (graph.at(counter) - pressure_min) / graph_ratio;
+                    if (y == 0)
+                        break;
+                    uint8_t y_from = (int)std::max(y0, y);
+                    uint8_t y_to = (int)std::min(y0, y);
+                    for (; y_from >= y_to; --y_from)
+                    {
+                        ssd1315.setPixel(x, y_from, 1u);
+                    }
+                    std::cout << (int)y0 << "->" << (int)y << " ";
+                    y0 = y;
+                }
+                ssd1315.setCursor(95, y0 <= 55 ? y0 : 55u).setString(buf_ss.str());
+            }
+        }
+
+        std::cout << std::endl;
         ssd1315.render();
         buf_ss.str("");
         sleep_ms(1000);

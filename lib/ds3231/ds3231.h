@@ -42,9 +42,9 @@ class DS3231 : public I2CDevice
     DS3231 &SetYear(uint16_t value);
 
     DS3231 &SetAlarm1(uint8_t seconds, uint8_t minutes, uint8_t hours, bool is_meridian, bool is_pm, uint8_t day,
-                      bool dow);
+                      uint8_t dow);
 
-    DS3231 &SetAlarm2(uint8_t minutes, uint8_t hours, bool is_meridian, bool is_pm, uint8_t day, bool dow);
+    DS3231 &SetAlarm2(uint8_t minutes, uint8_t hours, bool is_meridian, bool is_pm, uint8_t day, uint8_t dow);
 
     void SetDateTimeBlock(const domain::DateTime &datetime);
 
@@ -87,4 +87,4 @@ class DS3231 : public I2CDevice
 
     void read_controls();
 };
-}; // namespace DS3231
+} // namespace DS3231

@@ -59,23 +59,19 @@ ${LIBDIR}/i2c/i2c_device.cpp
 
 ${LIBDIR}/ssd1315/ssd1315.h
 ${LIBDIR}/ssd1315/ssd1315.cpp
-${LIBDIR}/ssd1315/ssd1315_common.h
-${LIBDIR}/ssd1315/ssd1315_common.cpp
 ${LIBDIR}/ssd1315/ssd1315_domain.h
 ${LIBDIR}/ssd1315/ssd1315_domain.cpp
 ${LIBDIR}/ssd1315/ssd1315_registers.h
-${LIBDIR}/ssd1315/ssd1306_font.h
-${LIBDIR}/ssd1315/ssd1315_example.h
-${LIBDIR}/ssd1315/ssd1315_example.cpp
 ${LIBDIR}/ssd1315/ssd1315_font.h
-
 ${LIBDIR}/spi/spi_entity.h
 ${LIBDIR}/spi/spi_entity.cpp
 )
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(RP2040_IIC_DS3231_BMP_180 RP2040_IIC_DS3231_BMP_180.cpp ${LIBRARIES})
+add_executable(RP2040_IIC_DS3231_BMP_180 RP2040_IIC_DS3231_BMP_180.cpp ${LIBRARIES} )
+
+target_compile_options(RP2040_IIC_DS3231_BMP_180 PRIVATE -Wall -Werror -Wextra)
 
 target_include_directories(RP2040_IIC_DS3231_BMP_180 PRIVATE ${LIBDIR})
 

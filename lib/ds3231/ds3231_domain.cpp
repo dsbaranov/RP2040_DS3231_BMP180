@@ -10,11 +10,11 @@ DateTimeFormatted DateTime::AsFormatted()
     {
         _hours += is_pm ? "pm" : "am";
     }
-    return DateTimeFormatted{.seconds = common::FormatDecWithLeadingZero(seconds),
-                             .minutes = common::FormatDecWithLeadingZero(minutes),
-                             .hours = _hours,
-                             .day = common::FormatDecWithLeadingZero(day),
-                             .month = common::FormatDecWithLeadingZero(month),
-                             .year = common::FormatDecWithLeadingZero(age) += common::FormatDecWithLeadingZero(year)};
+    return DateTimeFormatted{common::FormatDecWithLeadingZero(seconds),
+                             common::FormatDecWithLeadingZero(minutes),
+                             _hours,
+                             common::FormatDecWithLeadingZero(day),
+                             common::FormatDecWithLeadingZero(month),
+                             common::FormatDecWithLeadingZero(age) += common::FormatDecWithLeadingZero(year)};
 }
 } // namespace DS3231::domain

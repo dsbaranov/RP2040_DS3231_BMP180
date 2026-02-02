@@ -130,6 +130,8 @@ uint8_t DS3231::encode_dow(uint8_t dow)
     case 6:
         result = 1;
         break;
+    default:
+        result = 1;
     }
     return result;
 }
@@ -261,8 +263,8 @@ DS3231 &DS3231::SetYear(uint16_t value)
     return *this;
 }
 
-DS3231 &DS3231::SetAlarm1(uint8_t seconds, uint8_t minutes, uint8_t hours, bool is_meridial, bool is_pm, uint8_t day,
-                          bool dow)
+DS3231 &DS3231::SetAlarm1(uint8_t seconds, uint8_t minutes, uint8_t hours, bool is_meridial, bool is_pm,
+                          [[maybe_unused]] uint8_t day, [[maybe_unused]] uint8_t dow)
 {
     data_buffer_[0] = common::ByteDecToBinDec(seconds);
     data_buffer_[1] = common::ByteDecToBinDec(minutes);
@@ -271,7 +273,9 @@ DS3231 &DS3231::SetAlarm1(uint8_t seconds, uint8_t minutes, uint8_t hours, bool 
     return *this;
 }
 
-DS3231 &DS3231::SetAlarm2(uint8_t minutes, uint8_t hours, bool is_meridian, bool is_pm, uint8_t day, bool dow)
+DS3231 &DS3231::SetAlarm2([[maybe_unused]] uint8_t minutes, [[maybe_unused]] uint8_t hours,
+                          [[maybe_unused]] bool is_meridian, [[maybe_unused]] bool is_pm, [[maybe_unused]] uint8_t day,
+                          [[maybe_unused]] uint8_t dow)
 {
     // TODO: insert return statement here
     return *this;
@@ -410,4 +414,4 @@ DS3231 &DS3231::SetControls()
     write_register(REGISTERS::CONTROL, 1);
     return *this;
 }
-}; // namespace DS3231
+} // namespace DS3231

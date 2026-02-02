@@ -67,6 +67,7 @@ SSD1315 &SSD1315::setString(const std::string &str)
 
 SSD1315 &SSD1315::setString(uint8_t x, uint8_t y, const std::string &str)
 {
+    setCursor(x, y);
     for (char c : str)
     {
         setChar(c);
@@ -89,7 +90,6 @@ SSD1315 &SSD1315::setDegree()
 SSD1315 &SSD1315::clearRect()
 {
     std::fill(display_.begin(), display_.end(), 0);
-
     return *this;
 }
 
@@ -125,38 +125,39 @@ void SSD1315::drawByteVector(uint8_t x, uint8_t y, const std::vector<uint8_t> &s
 }
 
 SSD1315::SSD1315(i2c_inst_t *i2c, domain::DisplaySizeType type)
-    : size_(131, type == domain::DisplaySizeType::w128h64 ? 64 : 32), I2CDevice(i2c, REGISTERS::ADDR, 129u),
-      display_(size_.area() / PAGES, 0), cursor_{0, 0}
+    : I2CDevice(i2c, REGISTERS::ADDR, 129u), size_(131, type == domain::DisplaySizeType::w128h64 ? 64 : 32),
+      display_(size_.area() / PAGES, 0)
 {
 }
 
 SSD1315 &SSD1315::init()
 {
-    sendCommand(0xAE); // Display off
-    sendCommand(0xD5);
+    using namespace REGISTERS;
+    sendCommand(CMD_DISPLAY); // Display off
+    sendCommand(CMD_DISPLAY_CLOCK_DIVIDE_RATIO);
     sendCommand(0x80); // Set display clock divide ratio
-    sendCommand(0xA8);
+    sendCommand(CMD_MULTIPLEX_RATIO);
     sendCommand(0x3F); // Set multiplex ratio
-    sendCommand(0xD3);
-    sendCommand(0x00); // Set display offset
-    sendCommand(0x40); // Set start line address
-    sendCommand(0x8D);
+    sendCommand(CMD_DISPLAY_OFFSET);
+    sendCommand(0x00);                   // Set display offset
+    sendCommand(CMD_DISPLAY_START_LINE); // Set start line address
+    sendCommand(CMD_CHARGE_PUMP);
     sendCommand(0x14); // Charge pump
-    sendCommand(0x20);
+    sendCommand(CMD_MEMO_ADR_MODE);
     sendCommand(0x00); // Memory addressing mode
     sendCommand(0xA1); // Set segment re-map
     sendCommand(0xC8); // Set COM output scan direction
-    sendCommand(0xDA);
+    sendCommand(CMD_COM_PINS_HW_CONF);
     sendCommand(0x12); // Set COM pins hardware configuration
-    sendCommand(0x81);
+    sendCommand(CMD_CONTRAST_CTRL);
     sendCommand(0xCF); // Set contrast control
-    sendCommand(0xD9);
+    sendCommand(CMD_PRECHARGE_PERIOD);
     sendCommand(0xF1); // Set pre-charge period
-    sendCommand(0xDB);
-    sendCommand(0x40); // Set VCOMH
-    sendCommand(0xA4); // Entire display on
-    sendCommand(0xA6); // Set normal display
-    sendCommand(0xAF); // Display ons
+    sendCommand(CMD_VCOMH_SELECT_LEVEL);
+    sendCommand(0x40);                       // Set VCOMH
+    sendCommand(CMD_ENTIRE_DISPLAY_ON);      // Entire display on
+    sendCommand(CMD_INVERSE_DISPLAY_NORMAL); // Set normal display
+    sendCommand(0xAF);                       // Display on
     return *this;
 }
 
@@ -168,9 +169,7 @@ SSD1315 &SSD1315::render()
         sendCommand(0x00);        // Set lower column start address
         sendCommand(0x10);        // Set higher column start address
         auto begin = display_.begin() + (page * (size_.width));
-        size_t begin_ = std::distance(display_.begin(), begin);
         auto end = begin + size_.width - 1;
-        size_t end_ = std::distance(display_.begin(), end);
         std::copy(begin, end, data_buffer_.begin());
         write_register(0x40, size_.width);
     }

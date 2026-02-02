@@ -8,16 +8,20 @@ static const size_t I2CDEVICE_DEFAULT_TIMEOUT_US = 500000u;
 
 class I2CDevice
 {
-  private:
-    uint8_t device_address_;
-    size_t timeout_us_;
-
   protected:
     i2c_inst_t *i2c_;
 
+  private:
+    uint8_t device_address_;
+
+  protected:
     size_t timeout_us = I2CDEVICE_DEFAULT_TIMEOUT_US;
     std::vector<uint8_t> data_buffer_;
 
+  private:
+    size_t timeout_us_;
+
+  protected:
     I2CDevice(i2c_inst_t *i2c, uint8_t device_address, size_t buffer_size, size_t timeout_us);
     I2CDevice(i2c_inst_t *i2c, uint8_t device_address, size_t buffer_size);
     I2CDevice(i2c_inst_t *i2c, uint8_t device_address);

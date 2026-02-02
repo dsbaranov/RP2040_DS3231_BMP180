@@ -18,17 +18,27 @@ void BMP180::getCoefficients()
 {
     read_register(REGISTERS::AC1, 22);
     uint8_t counter = 0;
-    coefficients.AC1 = common::UnifyBytes<int16_t>(data_buffer_[counter++], data_buffer_[counter++]);
-    coefficients.AC2 = common::UnifyBytes<int16_t>(data_buffer_[counter++], data_buffer_[counter++]);
-    coefficients.AC3 = common::UnifyBytes<int16_t>(data_buffer_[counter++], data_buffer_[counter++]);
-    coefficients.AC4 = common::UnifyBytes<uint16_t>(data_buffer_[counter++], data_buffer_[counter++]);
-    coefficients.AC5 = common::UnifyBytes<uint16_t>(data_buffer_[counter++], data_buffer_[counter++]);
-    coefficients.AC6 = common::UnifyBytes<uint16_t>(data_buffer_[counter++], data_buffer_[counter++]);
-    coefficients.B1 = common::UnifyBytes<int16_t>(data_buffer_[counter++], data_buffer_[counter++]);
-    coefficients.B2 = common::UnifyBytes<int16_t>(data_buffer_[counter++], data_buffer_[counter++]);
-    coefficients.MB = common::UnifyBytes<int16_t>(data_buffer_[counter++], data_buffer_[counter++]);
-    coefficients.MC = common::UnifyBytes<int16_t>(data_buffer_[counter++], data_buffer_[counter++]);
-    coefficients.MD = common::UnifyBytes<int16_t>(data_buffer_[counter++], data_buffer_[counter++]);
+    coefficients.AC1 = common::UnifyBytes<int16_t>(data_buffer_[counter], data_buffer_[counter + 1]);
+    counter += 2;
+    coefficients.AC2 = common::UnifyBytes<int16_t>(data_buffer_[counter], data_buffer_[counter + 1]);
+    counter += 2;
+    coefficients.AC3 = common::UnifyBytes<int16_t>(data_buffer_[counter], data_buffer_[counter + 1]);
+    counter += 2;
+    coefficients.AC4 = common::UnifyBytes<int16_t>(data_buffer_[counter], data_buffer_[counter + 1]);
+    counter += 2;
+    coefficients.AC5 = common::UnifyBytes<int16_t>(data_buffer_[counter], data_buffer_[counter + 1]);
+    counter += 2;
+    coefficients.AC6 = common::UnifyBytes<int16_t>(data_buffer_[counter], data_buffer_[counter + 1]);
+    counter += 2;
+    coefficients.B1 = common::UnifyBytes<int16_t>(data_buffer_[counter], data_buffer_[counter + 1]);
+    counter += 2;
+    coefficients.B2 = common::UnifyBytes<int16_t>(data_buffer_[counter], data_buffer_[counter + 1]);
+    counter += 2;
+    coefficients.MB = common::UnifyBytes<int16_t>(data_buffer_[counter], data_buffer_[counter + 1]);
+    counter += 2;
+    coefficients.MC = common::UnifyBytes<int16_t>(data_buffer_[counter], data_buffer_[counter + 1]);
+    counter += 2;
+    coefficients.MD = common::UnifyBytes<int16_t>(data_buffer_[counter], data_buffer_[counter + 1]);
 }
 
 void BMP180::SetOSS(domain::MeasureDiscretion oss)
@@ -139,7 +149,6 @@ void BMP180::GetTemperature()
     if (temp_flag == true)
     {
         read_register(REGISTERS::OUT_MSB, 2);
-        long t_raw_msb = static_cast<long>(data_buffer_[0]) << 8u;
         temperature_raw = ((static_cast<long>(data_buffer_[0]) << 8u) + (static_cast<long>(data_buffer_[1]) && 0xff));
     }
     else

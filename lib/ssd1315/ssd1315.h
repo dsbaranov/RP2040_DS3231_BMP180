@@ -10,16 +10,17 @@ namespace SSD1315
 class SSD1315 : public I2CDevice
 {
   private:
+    domain::Size size_;
     const static uint8_t PAGES = 8u;
 
-    domain::Size size_;
+    std::vector<uint8_t> display_;
+
     domain::Coordinate cursor_ = {0, 0};
+
     void sendCommand(uint8_t command);
     void drawByteVector(uint8_t x, uint8_t y, const std::vector<uint8_t> &src);
 
   public:
-    std::vector<uint8_t> display_;
-
     SSD1315(i2c_inst_t *i2c, domain::DisplaySizeType type);
     SSD1315() = delete;
     SSD1315(const SSD1315 &) = delete;

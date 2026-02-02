@@ -37,4 +37,4 @@ static const uint8_t AGN_OFF = 0x10;
 static const uint8_t MSB_TMP = 0x11;
 static const uint8_t LSB_TMP = 0x12;
 
-}; // namespace DS3231::REGISTERS
+} // namespace DS3231::REGISTERS

@@ -41,15 +41,19 @@ class DS3231 : public I2CDevice
     DS3231 &SetMonth(uint8_t value);
     DS3231 &SetYear(uint16_t value);
 
-    DS3231 &SetAlarm1(uint8_t seconds, uint8_t minutes, uint8_t hours, bool is_meridian, bool is_pm, uint8_t day,
-                      uint8_t dow);
+    template <typename T> DS3231 &SetAlarm(T &&interface)
+    {
+        set_alarm(std::forward<T>(interface));
+        return *this;
+    }
 
-    DS3231 &SetAlarm2(uint8_t minutes, uint8_t hours, bool is_meridian, bool is_pm, uint8_t day, uint8_t dow);
+    DS3231 &SetAlarm2(const domain::IAlarm2 &);
+    DS3231 &SetAlarm2(domain::IAlarm2 &&);
 
-    void SetDateTimeBlock(const domain::DateTime &datetime);
+    void SetDateTimeBlock(const domain::IDateTimeDetailed &datetime);
 
-    domain::DateTime GetDateTime();
-    const domain::DateTime &GetDateTimeConst();
+    domain::IDateTimeDetailed GetDateTime();
+    const domain::IDateTimeDetailed &GetDateTimeConst();
 
     void ReadControls();
     DS3231 &SetControls();
@@ -57,25 +61,29 @@ class DS3231 : public I2CDevice
     domain::Controls controls;
 
   private:
-    domain::DateTime datetime_;
+    domain::IDateTimeDetailed datetime_;
 
     void read_bulk_date_time_block();
 
-    uint8_t decode_seconds(uint8_t seconds);
-    uint8_t decode_minutes(uint8_t minutes);
+    static uint8_t decode_seconds(uint8_t seconds);
+    static uint8_t decode_minutes(uint8_t minutes);
     uint8_t decode_hours(uint8_t hours);
-    uint8_t decode_dow(uint8_t dow);
-    uint8_t decode_day(uint8_t day);
+    static uint8_t decode_dow(uint8_t dow);
+    static uint8_t decode_day(uint8_t day);
     uint8_t decode_month(uint8_t month);
-    uint8_t decode_year(uint8_t year);
+    static uint8_t decode_year(uint8_t year);
+    static uint8_t encode_seconds(uint8_t seconds);
+    static uint8_t encode_minutes(uint8_t minutes);
+    static uint8_t encode_hours(uint8_t hours, uint8_t is_meridial, uint8_t is_pm);
+    static uint8_t encode_dow(uint8_t dow);
+    static uint8_t encode_day(uint8_t day);
+    static uint8_t encode_month(uint8_t month);
+    static uint8_t encode_year(uint8_t year);
 
-    uint8_t encode_seconds(uint8_t seconds);
-    uint8_t encode_minutes(uint8_t minutes);
-    uint8_t encode_hours(uint8_t hours, uint8_t is_meridial, uint8_t is_pm);
-    uint8_t encode_dow(uint8_t dow);
-    uint8_t encode_day(uint8_t day);
-    uint8_t encode_month(uint8_t month);
-    uint8_t encode_year(uint8_t year);
+    void set_alarm(const domain::IAlarm1 &);
+    void set_alarm(domain::IAlarm1 &&);
+    void set_alarm(const domain::IAlarm2 &);
+    void set_alarm(domain::IAlarm2 &&);
 
     void read_seconds_register();
     void read_minutes_register();
@@ -84,7 +92,6 @@ class DS3231 : public I2CDevice
     void read_day_register();
     void read_month_register();
     void read_year_register();
-
     void read_controls();
 };
 } // namespace DS3231

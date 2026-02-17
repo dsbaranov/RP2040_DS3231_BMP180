@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.13)
 
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Initialise pico_sdk from installed location
@@ -69,7 +69,7 @@ ${LIBDIR}/spi/spi_entity.cpp
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(RP2040_IIC_DS3231_BMP_180 RP2040_IIC_DS3231_BMP_180.cpp ${LIBRARIES} )
+add_executable(RP2040_IIC_DS3231_BMP_180 main.cpp ${LIBRARIES} )
 
 target_compile_options(RP2040_IIC_DS3231_BMP_180 PRIVATE -Wall -Werror -Wextra)
 

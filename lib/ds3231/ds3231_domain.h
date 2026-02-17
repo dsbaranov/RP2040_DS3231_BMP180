@@ -5,7 +5,40 @@
 
 namespace DS3231::domain
 {
-struct DateTimeFormatted
+
+struct IDateTimeBase
+{
+    uint8_t minutes = 0;
+    uint8_t is_meridial = 0;
+    uint8_t is_pm = 0;
+    uint8_t hours = 0;
+    uint8_t dow = 0;
+    uint8_t day = 0;
+};
+
+struct IAlarmBase
+{
+    uint8_t minutes_off = 1;
+    uint8_t hours_off = 1;
+    uint8_t dow_off = 1;
+    uint8_t day_off = 1;
+};
+
+struct IAlarm2 : public IDateTimeBase, public IAlarmBase
+{
+};
+
+struct IDateTimeExt : public IDateTimeBase
+{
+    uint8_t seconds = 0;
+};
+
+struct IAlarm1 : public IDateTimeExt, public IAlarmBase
+{
+    uint8_t seconds_off = 1;
+};
+
+struct IDateTimeFormatted
 {
     std::string seconds;
     std::string minutes;
@@ -15,20 +48,12 @@ struct DateTimeFormatted
     std::string year;
 };
 
-struct DateTime
+struct IDateTimeDetailed : public IDateTimeExt
 {
-    uint8_t seconds = 0;
-    uint8_t minutes = 0;
-    uint8_t hours = 0;
-    uint8_t dow = 0;
-    uint8_t day = 0;
     uint8_t month = 0;
     uint8_t year = 0;
-    uint8_t is_meridial = 0;
-    uint8_t is_pm = 0;
-    uint16_t age = 20;
-
-    DateTimeFormatted AsFormatted();
+    uint8_t age = 0;
+    IDateTimeFormatted AsFormatted();
 };
 
 struct Controls

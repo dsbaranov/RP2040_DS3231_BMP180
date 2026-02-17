@@ -148,6 +148,22 @@ uint8_t DS3231::encode_year(uint8_t year)
     return common::ByteDecToBinDec(year);
 }
 
+void DS3231::set_alarm(const domain::IAlarm1 &)
+{
+}
+
+void DS3231::set_alarm(domain::IAlarm1 &&)
+{
+}
+
+void DS3231::set_alarm(const domain::IAlarm2 &)
+{
+}
+
+void DS3231::set_alarm(domain::IAlarm2 &&)
+{
+}
+
 void DS3231::read_seconds_register()
 {
     I2CDevice::read_register(REGISTERS::SECOND, 1);
@@ -263,25 +279,7 @@ DS3231 &DS3231::SetYear(uint16_t value)
     return *this;
 }
 
-DS3231 &DS3231::SetAlarm1(uint8_t seconds, uint8_t minutes, uint8_t hours, bool is_meridial, bool is_pm,
-                          [[maybe_unused]] uint8_t day, [[maybe_unused]] uint8_t dow)
-{
-    data_buffer_[0] = common::ByteDecToBinDec(seconds);
-    data_buffer_[1] = common::ByteDecToBinDec(minutes);
-    data_buffer_[2] = common::ByteDecToBinDec(hours) | (0b01100000 & ((is_meridial << 6u) | (is_pm << 5u)));
-
-    return *this;
-}
-
-DS3231 &DS3231::SetAlarm2([[maybe_unused]] uint8_t minutes, [[maybe_unused]] uint8_t hours,
-                          [[maybe_unused]] bool is_meridian, [[maybe_unused]] bool is_pm, [[maybe_unused]] uint8_t day,
-                          [[maybe_unused]] uint8_t dow)
-{
-    // TODO: insert return statement here
-    return *this;
-}
-
-void DS3231::SetDateTimeBlock(const domain::DateTime &datetime)
+void DS3231::SetDateTimeBlock(const domain::IDateTimeDetailed &datetime)
 {
     datetime_.seconds = datetime.seconds % 60;
     datetime_.minutes = datetime.minutes % 60;
@@ -390,13 +388,13 @@ std::string DS3231::GetFormattedYear()
     return common::FormatDecWithLeadingZero(GetYear());
 }
 
-domain::DateTime DS3231::GetDateTime()
+domain::IDateTimeDetailed DS3231::GetDateTime()
 {
     read_bulk_date_time_block();
     return datetime_;
 }
 
-const domain::DateTime &DS3231::GetDateTimeConst()
+const domain::IDateTimeDetailed &DS3231::GetDateTimeConst()
 {
     return datetime_;
 }

@@ -22,6 +22,7 @@ struct IAlarmBase
     uint8_t hours_off = 1;
     uint8_t dow_off = 1;
     uint8_t day_off = 1;
+    uint8_t day_is_dow = 0;
 };
 
 struct IAlarm2 : public IDateTimeBase, public IAlarmBase

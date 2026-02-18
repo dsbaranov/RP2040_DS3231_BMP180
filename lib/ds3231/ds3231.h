@@ -47,9 +47,6 @@ class DS3231 : public I2CDevice
         return *this;
     }
 
-    DS3231 &SetAlarm2(const domain::IAlarm2 &);
-    DS3231 &SetAlarm2(domain::IAlarm2 &&);
-
     void SetDateTimeBlock(const domain::IDateTimeDetailed &datetime);
 
     domain::IDateTimeDetailed GetDateTime();

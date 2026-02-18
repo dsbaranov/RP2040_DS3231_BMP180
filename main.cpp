@@ -65,6 +65,18 @@ int main()
     graph.reserve(max_graph_x);
     uint8_t y0 = 63u;
 
+    // DS3231::domain::IAlarm2 ialarm2{};
+    // ialarm2.minutes = 17;
+    // ialarm2.minutes_off = 0;
+    // ialarm2.hours = 17;
+    // ialarm2.hours_off = 0;
+    // ialarm2.is_meridial = 0;
+    // ialarm2.day = 17;
+    // ialarm2.day_is_dow = 0;
+    // ialarm2.day_off = 0;
+
+    // ds3231.SetAlarm(ialarm2);
+
     while (true)
     {
         ssd1315.clearRect();

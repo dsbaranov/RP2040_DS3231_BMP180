@@ -156,8 +156,19 @@ void DS3231::set_alarm(domain::IAlarm1 &&)
 {
 }
 
-void DS3231::set_alarm(const domain::IAlarm2 &)
+void DS3231::set_alarm(const domain::IAlarm2 &ialarm2)
 {
+    data_buffer_[0] = encode_minutes(ialarm2.minutes) | (ialarm2.minutes_off << 7u);
+    data_buffer_[1] = encode_hours(ialarm2.hours, ialarm2.is_meridial, ialarm2.is_pm) | (ialarm2.hours_off << 7u);
+    data_buffer_[2] = (0x00 | (ialarm2.day_off << 7u)) | (ialarm2.day_is_dow << 6u);
+    if (ialarm2.day_is_dow == 1)
+    {
+        data_buffer_[2] |= encode_dow(ialarm2.dow);
+    }
+    else
+    {
+        data_buffer_[2] |= encode_day(ialarm2.day);
+    }
 }
 
 void DS3231::set_alarm(domain::IAlarm2 &&)

@@ -55,10 +55,14 @@ class DS3231 : public I2CDevice
     void ReadControls();
     DS3231 &SetControls();
 
-    domain::Controls controls;
+    const std::vector<uint8_t> &getBuffer()
+    {
+        return data_buffer_;
+    }
 
   private:
     domain::IDateTimeDetailed datetime_;
+    domain::Controls controls;
 
     void read_bulk_date_time_block();
 

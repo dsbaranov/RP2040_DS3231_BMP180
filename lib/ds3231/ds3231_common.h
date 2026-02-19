@@ -12,9 +12,6 @@ uint8_t ByteMaskLsn(uint8_t value);
 uint8_t ByteDecToBinDec(uint8_t value);
 // Преобразование значения байта из бинарно-десятичного в десятичный
 uint8_t ByteBinDecToDec(uint8_t value);
-
 std::string FormatDecWithLeadingZero(uint8_t value, uint8_t width);
-
 std::string FormatDecWithLeadingZero(uint8_t value);
-
 } // namespace DS3231::common

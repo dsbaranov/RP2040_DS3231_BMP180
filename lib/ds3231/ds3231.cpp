@@ -102,7 +102,7 @@ uint8_t DS3231::encode_minutes(uint8_t minutes)
 }
 uint8_t DS3231::encode_hours(uint8_t hours, uint8_t is_meridial, uint8_t is_pm)
 {
-    return common::ByteDecToBinDec(hours) | (0b01100000 & ((is_meridial << 6u) | (is_pm << 5u)));
+    return common::ByteDecToBinDec(hours) | (0x60 & ((is_meridial << 6u) | (is_pm << 5u)));
 }
 uint8_t DS3231::encode_dow(uint8_t dow)
 {
@@ -169,10 +169,24 @@ void DS3231::set_alarm(const domain::IAlarm2 &ialarm2)
     {
         data_buffer_[2] |= encode_day(ialarm2.day);
     }
+    write_register(ALARM2_MIN, 3);
 }
 
-void DS3231::set_alarm(domain::IAlarm2 &&)
+void DS3231::set_alarm(domain::IAlarm2 &&ialarm2)
 {
+    data_buffer_[0] = encode_minutes(std::move(ialarm2.minutes)) | (std::move(ialarm2.minutes_off) << 7u);
+    data_buffer_[1] = encode_hours(std::move(ialarm2.hours), std::move(ialarm2.is_meridial), std::move(ialarm2.is_pm)) |
+                      (ialarm2.hours_off << 7u);
+    data_buffer_[2] = (0x00 | (std::move(ialarm2.day_off) << 7u)) | (ialarm2.day_is_dow << 6u);
+    if (ialarm2.day_is_dow == 1)
+    {
+        data_buffer_[2] |= encode_dow(std::move(ialarm2.dow));
+    }
+    else
+    {
+        data_buffer_[2] |= encode_day(std::move(ialarm2.day));
+    }
+    write_register(ALARM2_MIN, 3);
 }
 
 void DS3231::read_seconds_register()

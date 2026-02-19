@@ -46,16 +46,7 @@ int main()
     sleep_ms(3000);
     gpio_put(LED_PIN, false);
 
-    // ds3231.SetDateTimeBlock(DS3231::domain::DateTime{.seconds = 0,
-    //                                                  .minutes = 59,
-    //                                                  .hours = 15,
-    //                                                  .dow = 3,
-    //                                                  .day = 28,
-    //                                                  .month = 1,
-    //                                                  .year = 26,
-    //                                                  .is_meridial = 0,
-    //                                                  .is_pm = 0,
-    //                                                  .age = 20});
+    // ds3231.SetDateTimeBlock(DS3231::domain::IDateTimeDetailed{0, 30, 0, 0, 12, 4, 19, 2, 26, 20});
 
     ds3231.init();
     bmp180.init();
@@ -65,17 +56,14 @@ int main()
     graph.reserve(max_graph_x);
     uint8_t y0 = 63u;
 
-    // DS3231::domain::IAlarm2 ialarm2{};
-    // ialarm2.minutes = 17;
-    // ialarm2.minutes_off = 0;
-    // ialarm2.hours = 17;
-    // ialarm2.hours_off = 0;
-    // ialarm2.is_meridial = 0;
-    // ialarm2.day = 17;
-    // ialarm2.day_is_dow = 0;
-    // ialarm2.day_off = 0;
-
-    // ds3231.SetAlarm(ialarm2);
+    ds3231.SetAlarm(DS3231::domain::IAlarm2{11, 0, 0, 12, 1, 13, 0, 0, 0, 0, 0});
+    auto buffer_ptr = ds3231.getBuffer();
+    std::cout << "buffer:" << std::endl;
+    for (uint8_t i = 0; i < 3; i++)
+    {
+        std::cout << (int)buffer_ptr.at(i) << " ";
+    }
+    std::cout << std::endl;
 
     while (true)
     {
@@ -99,13 +87,6 @@ int main()
         pressure_min = std::min(pressure_min, bmp180.pressure());
 
         auto datetime_f = ds3231.GetDateTime().AsFormatted();
-        // std::cout << datetime_f.day.c_str() << '.' << datetime_f.month.c_str() << '.' << datetime_f.year.c_str() << '
-        // '
-        //           << datetime_f.hours.c_str() << ':' << datetime_f.minutes.c_str() << ':' <<
-        //           datetime_f.seconds.c_str()
-        //           << ' ' << std::setprecision(3) << bmp180.temperature() << "C " << std::setprecision(4)
-        //           << bmp180.pressure() << "mm" << std::endl;
-
         buf_ss << std::setw(4) << std::setprecision(3) << bmp180.temperature();
         ssd1315.setCursor(0, 0)
             .setString(datetime_f.hours)
@@ -134,10 +115,6 @@ int main()
         buf_ss << std::setprecision(4) << bmp180.pressure();
 
         double graph_ratio = (pressure_max - pressure_min) / 24.;
-        // uint8_t x = 31u + std::distance(graph.begin(), graph_it);
-        // uint8_t y = 63 - (*graph_it - pressure_min) / graph_ratio;
-        // std::cout << "(" << (unsigned)x << "," << (unsigned)y << ")";
-        // ssd1315.setPixel(x, y, 1u);
         if (graph.size() > 0)
         {
             if (graph.size() < max_graph_x)
@@ -160,8 +137,6 @@ int main()
                     {
                         ssd1315.setPixel(x, y_from, 1u);
                     }
-
-                    std::cout << (int)y0 << "->" << (int)y << " ";
                     y0 = y;
                 }
             }
@@ -181,7 +156,6 @@ int main()
                     {
                         ssd1315.setPixel(x, y_from, 1u);
                     }
-                    std::cout << (int)y0 << "->" << (int)y << " ";
                     y0 = y;
                 }
                 for (uint8_t counter(0); counter < graph_counter; counter++)
@@ -196,14 +170,12 @@ int main()
                     {
                         ssd1315.setPixel(x, y_from, 1u);
                     }
-                    std::cout << (int)y0 << "->" << (int)y << " ";
                     y0 = y;
                 }
                 ssd1315.setCursor(95, y0 <= 55 ? y0 : 55u).setString(buf_ss.str());
             }
         }
 
-        std::cout << std::endl;
         ssd1315.render();
         buf_ss.str("");
         sleep_ms(1000);

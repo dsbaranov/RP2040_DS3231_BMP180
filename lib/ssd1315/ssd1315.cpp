@@ -93,6 +93,23 @@ SSD1315 &SSD1315::clearRect()
     return *this;
 }
 
+SSD1315 &SSD1315::clearRect(uint8_t x, uint8_t y, uint8_t width, uint8_t height)
+{
+    if (x > 127 || y > 63 ) return *this;
+    if (x + width > 127) {
+        width = 127 - x;
+    }
+    if ( y + height >= 63){
+        height = 63  - x;
+    }
+    for (; x < 127; x++){
+        for (; y < 63; y++){
+            setPixel(x, y, 0);
+        }
+    }
+    return *this;
+}
+
 SSD1315 &SSD1315::clear()
 {
     clearRect();

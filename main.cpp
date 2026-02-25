@@ -69,11 +69,28 @@ int main()
         auto datetime = ds3231.getDateTime();
         auto datetime_f = datetime.AsFormatted();
         ds3231.readState();
+        bmp180.ReadData(false);
         if (ds3231.State.A2F == 1)
         {
             A2F_c++;
             ds3231.State.A2F = 0;
             ds3231.setState();
+            bmp180.ReadData(true);
+            if (datetime.minutes % 4 == 0)
+            {
+                if (graph.size() < max_graph_x)
+                {
+                    graph.push_back(bmp180.pressure());
+                }
+                else
+                {
+                    graph[graph_counter++] = bmp180.pressure();
+                    if (graph_counter >= max_graph_x)
+                    {
+                        graph_counter = 0;
+                    }
+                }
+            }
         }
         ssd1315.clearRect();
         buf_ss << std::setw(4) << std::setprecision(3) << bmp180.temperature();
@@ -93,45 +110,31 @@ int main()
             .setString(buf_ss.str())
             .setDegree()
             .setChar('C');
-
         buf_ss.str("");
-        buf_ss << "A2:" << (int)ds3231.State.A2F;
-        ssd1315.setCursor(92, 16).setString(buf_ss.str());
-        buf_ss.str("");
-        buf_ss << "A2c:" << (int)A2F_c;
-        ssd1315.setCursor(86, 24).setString(buf_ss.str());
+        buf_ss << "A2:" << (int)ds3231.State.A2F << " " << (int)A2F_c;
+        ssd1315.setCursor(0, 16).setString(buf_ss.str());
 
-        bmp180.ReadData();
-        if (graph.size() < max_graph_x)
-        {
-            graph.push_back(bmp180.pressure());
-        }
-        else
-        {
-            graph[graph_counter++] = bmp180.pressure();
-            if (graph_counter >= max_graph_x)
-            {
-                graph_counter = 0;
-            }
-        }
         if (graph.size() > 0)
         {
+            double pressure_min = bmp180.min();
+            double pressure_max = bmp180.max();
+
             buf_ss.str("");
-            buf_ss << std::setprecision(4) << bmp180.max();
+            buf_ss << std::setprecision(4) << pressure_max;
             ssd1315.setCursor(0, 40).setString(buf_ss.str());
             buf_ss.str("");
-            buf_ss << std::setprecision(4) << bmp180.min();
+            buf_ss << std::setprecision(4) << pressure_min;
             ssd1315.setCursor(0, 56).setString(buf_ss.str());
+
             buf_ss.str("");
             buf_ss << std::setprecision(4) << bmp180.pressure();
-            double graph_ratio = (bmp180.max() - bmp180.min()) / 24.;
+            double graph_ratio = (pressure_max - pressure_min) / 24.;
             if (graph.size() < max_graph_x)
             {
-
                 for (uint8_t counter = 0; counter < graph.size(); counter++)
                 {
                     uint8_t x = 31u + counter;
-                    uint8_t y = 63u - (graph.at(counter) - bmp180.min()) / graph_ratio;
+                    uint8_t y = 63u - (graph.at(counter) - pressure_min) / graph_ratio;
                     if (y == 0)
                         break;
                     uint8_t y_from = std::max(y0, y);
@@ -155,7 +158,7 @@ int main()
                 for (uint8_t counter(graph_counter); counter < graph.size(); counter++)
                 {
                     uint8_t x = 31u + abs_counter++;
-                    uint8_t y = 63u - (graph.at(counter) - bmp180.min()) / graph_ratio;
+                    uint8_t y = 63u - (graph.at(counter) - pressure_min) / graph_ratio;
                     if (y == 0)
                         break;
                     uint8_t y_from = (int)std::max(y0, y);
@@ -169,7 +172,7 @@ int main()
                 for (uint8_t counter(0); counter < graph_counter; counter++)
                 {
                     uint8_t x = 31u + abs_counter++;
-                    uint8_t y = 63u - (graph.at(counter) - bmp180.min()) / graph_ratio;
+                    uint8_t y = 63u - (graph.at(counter) - pressure_min) / graph_ratio;
                     if (y == 0)
                         break;
                     uint8_t y_from = (int)std::max(y0, y);

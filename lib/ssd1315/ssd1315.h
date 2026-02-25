@@ -39,6 +39,7 @@ class SSD1315 : public I2CDevice
     SSD1315 &setDegree(uint8_t x, uint8_t y);
     SSD1315 &setDegree();
     SSD1315 &clearRect();
+    SSD1315& clearRect(uint8_t x, uint8_t y, uint8_t width, uint8_t height);
     SSD1315 &clear();
 
     ~SSD1315();

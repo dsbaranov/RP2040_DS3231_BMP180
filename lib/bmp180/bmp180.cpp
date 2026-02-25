@@ -46,13 +46,13 @@ void BMP180::SetOSS(domain::MeasureDiscretion oss)
     oss_ = oss;
 }
 
-void BMP180::ReadData()
+void BMP180::ReadData(bool statistics)
 {
     GetTemperature();
     GetPressure();
     if (temperature_raw != 0 && pressure_raw != 0)
     {
-        ExecuteCalculation();
+        ExecuteCalculation(statistics);
     }
     else
     {
@@ -80,6 +80,16 @@ void BMP180::Flush()
 void BMP180::init()
 {
     getCoefficients();
+}
+
+double BMP180::min()
+{
+    return pressure_min_;
+}
+
+double BMP180::max()
+{
+    return pressure_max_;
 }
 
 uint8_t BMP180::GetOssIndex() const
@@ -173,7 +183,7 @@ void BMP180::GetPressure()
     }
 }
 
-void BMP180::ExecuteCalculation()
+void BMP180::ExecuteCalculation(bool statistics)
 {
     uint8_t oss = GetOssIndex();
     long X1, X2, B5, T;
@@ -207,5 +217,10 @@ void BMP180::ExecuteCalculation()
     X2 = (-7357 * (pressure_raw)) >> 16;
     pressure_raw = pressure_raw + ((X1 + X2 + 3791) >> 4);
     pressure_ = static_cast<double>(static_cast<unsigned>(static_cast<double>(pressure_raw) * 0.07500615f)) / 10.f;
+    if (statistics)
+    {
+        pressure_min_ = std::min(pressure_, pressure_min_);
+        pressure_max_ = std::max(pressure_, pressure_max_);
+    }
 }
 } // namespace BMP180

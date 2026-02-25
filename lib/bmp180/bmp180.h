@@ -18,7 +18,7 @@ class BMP180 : public I2CDevice
     bool Ping();
     void getCoefficients();
     void SetOSS(domain::MeasureDiscretion);
-    void ReadData();
+    void ReadData(bool statistics = true);
 
     float temperature();
     double pressure();
@@ -26,8 +26,11 @@ class BMP180 : public I2CDevice
     void Flush();
 
     void init();
+    double min();
+    double max();
 
   private:
+    double pressure_min_ = 999., pressure_max_ = 0.;
     double temperature_ = 0.f;
     double pressure_ = 0;
     domain::Coefficients coefficients;
@@ -41,7 +44,7 @@ class BMP180 : public I2CDevice
     bool ExecuteMeasure(domain::MeasureCommand command, uint8_t attempts);
     void GetTemperature();
     void GetPressure();
-    void ExecuteCalculation();
+    void ExecuteCalculation(bool statistics = true);
 };
 
 } // namespace BMP180

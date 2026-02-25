@@ -96,7 +96,7 @@ SSD1315 &SSD1315::clearRect()
 SSD1315 &SSD1315::clear()
 {
     clearRect();
-    render();
+    draw();
     return *this;
 }
 
@@ -161,7 +161,7 @@ SSD1315 &SSD1315::init()
     return *this;
 }
 
-SSD1315 &SSD1315::render()
+SSD1315 &SSD1315::draw()
 {
     for (int page = 0; page < PAGES; ++page)
     {

@@ -28,7 +28,7 @@ class SSD1315 : public I2CDevice
 
     SSD1315 &init();
 
-    SSD1315 &render();
+    SSD1315 &draw();
     SSD1315 &setPixel(uint8_t x, uint8_t y, uint8_t on = false);
     SSD1315 &setCursor(uint8_t x, uint8_t y);
     SSD1315 &setChar(uint8_t x, uint8_t y, char c);

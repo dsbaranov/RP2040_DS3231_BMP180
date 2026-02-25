@@ -10,7 +10,15 @@ using namespace REGISTERS;
 
 class DS3231 : public I2CDevice
 {
+  private:
+    domain::IDateTimeDetailed datetime_;
+    domain::IAlarm1 alarm1_;
+    domain::IAlarm2 alarm2_;
+
   public:
+    domain::Controls Controls;
+    domain::State State;
+
     DS3231(i2c_inst_t *i2c);
     DS3231() = delete;
     DS3231(const DS3231 &) = delete;
@@ -18,42 +26,51 @@ class DS3231 : public I2CDevice
 
     void init();
 
-    uint8_t GetSeconds();
-    uint8_t GetMinutes();
-    uint8_t GetHours();
-    uint8_t GetDow();
-    uint8_t GetDay();
-    uint8_t GetMonth();
-    uint8_t GetAge();
-    uint8_t GetYear();
-    std::string GetFormattedSeconds();
-    std::string GetFormattedMinutes();
-    std::string GetFormattedHours();
-    std::string GetFormattedDay();
-    std::string GetFormattedMonth();
-    std::string GetFormattedYear();
+    uint8_t getSeconds();
+    uint8_t getMinutes();
+    uint8_t getHours();
+    uint8_t getDow();
+    uint8_t getDay();
+    uint8_t getMonth();
+    uint8_t getAge();
+    uint8_t getYear();
+    std::string getFormattedSeconds();
+    std::string getFormattedMinutes();
+    std::string getFormattedHours();
+    std::string getFormattedDay();
+    std::string getFormattedMonth();
+    std::string getFormattedYear();
 
-    DS3231 &SetSeconds(uint8_t value = 0);
-    DS3231 &SetMinutes(uint8_t value = 0);
-    DS3231 &SetHours(uint8_t value = 0, uint8_t is_meridial = 0, uint8_t is_am = 0);
-    DS3231 &SetDow(uint8_t value);
-    DS3231 &SetDay(uint8_t value);
-    DS3231 &SetMonth(uint8_t value);
-    DS3231 &SetYear(uint16_t value);
+    DS3231 &setSeconds(uint8_t value = 0);
+    DS3231 &setMinutes(uint8_t value = 0);
+    DS3231 &setHours(uint8_t value = 0, uint8_t is_meridial = 0, uint8_t is_am = 0);
+    DS3231 &setDow(uint8_t value);
+    DS3231 &setDay(uint8_t value);
+    DS3231 &setMonth(uint8_t value);
+    DS3231 &setYear(uint16_t value);
 
-    template <typename T> DS3231 &SetAlarm(T &&interface)
+    template <typename T> DS3231 &setAlarm(T &&interface)
     {
         set_alarm(std::forward<T>(interface));
         return *this;
     }
 
-    void SetDateTimeBlock(const domain::IDateTimeDetailed &datetime);
+    void readAlarm1();
+    domain::IAlarm1 &Alarm1();
 
-    domain::IDateTimeDetailed GetDateTime();
-    const domain::IDateTimeDetailed &GetDateTimeConst();
+    void readAlarm2();
+    domain::IAlarm2 &Alarm2();
 
-    void ReadControls();
-    DS3231 &SetControls();
+    void setDateTimeBlock(const domain::IDateTimeDetailed &datetime);
+
+    domain::IDateTimeDetailed getDateTime();
+    const domain::IDateTimeDetailed &getDateTimeConst() const;
+
+    void readControls();
+    DS3231 &setControls();
+
+    void readState();
+    DS3231 &setState();
 
     const std::vector<uint8_t> &getBuffer()
     {
@@ -61,14 +78,10 @@ class DS3231 : public I2CDevice
     }
 
   private:
-    domain::IDateTimeDetailed datetime_;
-    domain::Controls controls;
-
     void read_bulk_date_time_block();
-
     static uint8_t decode_seconds(uint8_t seconds);
     static uint8_t decode_minutes(uint8_t minutes);
-    uint8_t decode_hours(uint8_t hours);
+    static domain::IHourData decode_hours(uint8_t hours);
     static uint8_t decode_dow(uint8_t dow);
     static uint8_t decode_day(uint8_t day);
     uint8_t decode_month(uint8_t month);
@@ -94,5 +107,7 @@ class DS3231 : public I2CDevice
     void read_month_register();
     void read_year_register();
     void read_controls();
+    void read_state();
+    void set_state();
 };
 } // namespace DS3231

@@ -73,7 +73,7 @@ ${LIBDIR}/spi/spi_entity.cpp
 
 add_executable(RP2040_IIC_DS3231_BMP_180 main.cpp ${LIBRARIES} )
 
-target_compile_options(RP2040_IIC_DS3231_BMP_180 PRIVATE -Wall -Wpedantic -Werror -Wextra -Wno-psabi )
+target_compile_options(RP2040_IIC_DS3231_BMP_180 PRIVATE -Wall  -Werror -Wextra -Wno-psabi )
 
 target_include_directories(RP2040_IIC_DS3231_BMP_180 PRIVATE ${LIBDIR})
 

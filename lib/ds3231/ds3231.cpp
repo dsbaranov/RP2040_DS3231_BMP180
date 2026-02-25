@@ -14,7 +14,10 @@ void DS3231::read_bulk_date_time_block()
     uint8_t reg_cnt = 0;
     datetime_.seconds = decode_seconds(I2CDevice::data_buffer_[reg_cnt++]);
     datetime_.minutes = decode_minutes(I2CDevice::data_buffer_[reg_cnt++]);
-    datetime_.hours = decode_hours(I2CDevice::data_buffer_[reg_cnt++]);
+    domain::IHourData iHour = decode_hours(I2CDevice::data_buffer_[reg_cnt++]);
+    datetime_.hours = iHour.hours;
+    datetime_.is_meridial = iHour.is_meridial;
+    datetime_.is_pm = iHour.is_pm;
     datetime_.dow = decode_dow(I2CDevice::data_buffer_[reg_cnt++]);
     datetime_.day = decode_day(I2CDevice::data_buffer_[reg_cnt++]);
     datetime_.month = decode_month(I2CDevice::data_buffer_[reg_cnt++]);
@@ -29,18 +32,20 @@ uint8_t DS3231::decode_minutes(uint8_t minutes)
 {
     return common::ByteBinDecToDec(minutes);
 }
-uint8_t DS3231::decode_hours(uint8_t hours)
+domain::IHourData DS3231::decode_hours(uint8_t hours)
 {
-    datetime_.is_meridial = (hours >> 6) & 0x01;
-    datetime_.is_pm = (hours >> 5) & 0x01;
-    if (datetime_.is_meridial)
+    domain::IHourData iHourData;
+    iHourData.is_meridial = (hours >> 6) & 0x01;
+    iHourData.is_pm = (hours >> 5) & 0x01;
+    if (iHourData.is_meridial == 1)
     {
-        return common::ByteBinDecToDec(hours & 0x1F);
+        iHourData.hours = common::ByteBinDecToDec(hours & 0x1F);
     }
     else
     {
-        return common::ByteBinDecToDec(hours & 0x3F);
+        iHourData.hours = common::ByteBinDecToDec(hours & 0x3F);
     }
+    return iHourData;
 }
 uint8_t DS3231::decode_dow(uint8_t dow)
 {
@@ -148,44 +153,47 @@ uint8_t DS3231::encode_year(uint8_t year)
     return common::ByteDecToBinDec(year);
 }
 
-void DS3231::set_alarm(const domain::IAlarm1 &)
+void DS3231::set_alarm(const domain::IAlarm1 &ialarm1)
 {
+    alarm1_ = ialarm1;
+    data_buffer_[0] = encode_seconds(ialarm1.seconds) | (ialarm1.seconds_off << 7u);
+    data_buffer_[1] = encode_minutes(ialarm1.minutes) | (ialarm1.minutes_off << 7u);
+    data_buffer_[2] = encode_hours(ialarm1.hours, ialarm1.is_meridial, ialarm1.is_pm) | (ialarm1.hours_off << 7u);
+    data_buffer_[3] = (0x00 | (ialarm1.day_off << 7u)) | (ialarm1.day_is_dow << 6u);
+    data_buffer_[3] |= ialarm1.day_is_dow == 1 ? encode_dow(ialarm1.day) : encode_day(ialarm1.day);
+    write_register(ALARM1_SEC, 4u);
 }
-
-void DS3231::set_alarm(domain::IAlarm1 &&)
+void DS3231::set_alarm(domain::IAlarm1 &&ialarm1)
 {
+    alarm1_ = ialarm1;
+    data_buffer_[0] = encode_seconds(std::move(ialarm1.seconds)) | (std::move(ialarm1.seconds_off) << 7u);
+    data_buffer_[1] = encode_minutes(std::move(ialarm1.minutes)) | (std::move(ialarm1.minutes_off) << 7u);
+    data_buffer_[2] = encode_hours(std::move(ialarm1.hours), std::move(ialarm1.is_meridial), std::move(ialarm1.is_pm)) |
+                      (std::move(ialarm1.hours_off) << 7u);
+    data_buffer_[3] = (0x00 | (std::move(ialarm1.day_off) << 7u)) | (ialarm1.day_is_dow << 6u);
+    data_buffer_[3] |=
+        ialarm1.day_is_dow == 1 ? encode_dow(std::move(ialarm1.day)) : encode_day(std::move(ialarm1.day));
+    write_register(ALARM1_SEC, 4u);
 }
 
 void DS3231::set_alarm(const domain::IAlarm2 &ialarm2)
 {
+    alarm2_ = ialarm2;
     data_buffer_[0] = encode_minutes(ialarm2.minutes) | (ialarm2.minutes_off << 7u);
     data_buffer_[1] = encode_hours(ialarm2.hours, ialarm2.is_meridial, ialarm2.is_pm) | (ialarm2.hours_off << 7u);
     data_buffer_[2] = (0x00 | (ialarm2.day_off << 7u)) | (ialarm2.day_is_dow << 6u);
-    if (ialarm2.day_is_dow == 1)
-    {
-        data_buffer_[2] |= encode_dow(ialarm2.dow);
-    }
-    else
-    {
-        data_buffer_[2] |= encode_day(ialarm2.day);
-    }
+    data_buffer_[2] |= ialarm2.day_is_dow == 1 ? encode_dow(ialarm2.day) : encode_day(ialarm2.day);
     write_register(ALARM2_MIN, 3);
 }
 
 void DS3231::set_alarm(domain::IAlarm2 &&ialarm2)
 {
+    alarm2_ = ialarm2;
     data_buffer_[0] = encode_minutes(std::move(ialarm2.minutes)) | (std::move(ialarm2.minutes_off) << 7u);
     data_buffer_[1] = encode_hours(std::move(ialarm2.hours), std::move(ialarm2.is_meridial), std::move(ialarm2.is_pm)) |
                       (ialarm2.hours_off << 7u);
     data_buffer_[2] = (0x00 | (std::move(ialarm2.day_off) << 7u)) | (ialarm2.day_is_dow << 6u);
-    if (ialarm2.day_is_dow == 1)
-    {
-        data_buffer_[2] |= encode_dow(std::move(ialarm2.dow));
-    }
-    else
-    {
-        data_buffer_[2] |= encode_day(std::move(ialarm2.day));
-    }
+    data_buffer_[2] |= ialarm2.day_is_dow == 1 ? encode_dow(std::move(ialarm2.day)) : encode_day(ialarm2.day);
     write_register(ALARM2_MIN, 3);
 }
 
@@ -202,7 +210,10 @@ void DS3231::read_minutes_register()
 void DS3231::read_hours_register()
 {
     I2CDevice::read_register(REGISTERS::HOUR, 1);
-    datetime_.hours = decode_hours(I2CDevice::data_buffer_[0]);
+    domain::IHourData iHour = decode_hours(I2CDevice::data_buffer_[0]);
+    datetime_.is_meridial = iHour.is_meridial;
+    datetime_.is_pm = iHour.is_pm;
+    datetime_.hours = iHour.hours;
 }
 void DS3231::read_dow_register()
 {
@@ -229,31 +240,50 @@ void DS3231::read_controls()
 {
     I2CDevice::read_register(REGISTERS::CONTROL, 1);
     uint8_t cnt = 7;
-    controls.EOSC = (data_buffer_[0] >> cnt--) & 0x01;
-    controls.BBSQW = (data_buffer_[0] >> cnt--) & 0x01;
-    controls.CONV = (data_buffer_[0] >> cnt--) & 0x01;
-    controls.RS2 = (data_buffer_[0] >> cnt--) & 0x01;
-    controls.RS1 = (data_buffer_[0] >> cnt--) & 0x01;
-    controls.INTCN = (data_buffer_[0] >> cnt--) & 0x01;
-    controls.A2IE = (data_buffer_[0] >> cnt--) & 0x01;
-    controls.A1IE = data_buffer_[0] & 0x01;
+    Controls.EOSC = (data_buffer_[0] >> cnt--) & 0x01;
+    Controls.BBSQW = (data_buffer_[0] >> cnt--) & 0x01;
+    Controls.CONV = (data_buffer_[0] >> cnt--) & 0x01;
+    Controls.RS2 = (data_buffer_[0] >> cnt--) & 0x01;
+    Controls.RS1 = (data_buffer_[0] >> cnt--) & 0x01;
+    Controls.INTCN = (data_buffer_[0] >> cnt--) & 0x01;
+    Controls.A2IE = (data_buffer_[0] >> cnt--) & 0x01;
+    Controls.A1IE = data_buffer_[0] & 0x01;
 }
 
-DS3231 &DS3231::SetSeconds(uint8_t value)
+void DS3231::read_state()
+{
+    uint8_t cnt = 1;
+    I2CDevice::read_register(REGISTERS::CTL_STA, cnt);
+    State.A1F = (data_buffer_[0] & cnt);
+    State.A2F = (data_buffer_[0] >> cnt++) & 0x01;
+    State.BSY = (data_buffer_[0] >> cnt++) & 0x01;
+    State.EN32 = (data_buffer_[0] >> cnt) & 0x01;
+    cnt = 7u;
+    State.OSF = (data_buffer_[0] >> cnt) & 0x01;
+}
+
+void DS3231::set_state()
+{
+    data_buffer_[0] = 0x00 | ((State.OSF & 0x01) << 7u) | ((State.EN32 & 0x01) << 3u) | ((State.BSY & 0x01) << 2u) |
+                      ((State.A2F & 0x01) << 1u) | (State.A1F & 0x01);
+    write_register(REGISTERS::CTL_STA, 1);
+}
+
+DS3231 &DS3231::setSeconds(uint8_t value)
 {
     datetime_.seconds = value % 60;
     I2CDevice::data_buffer_[0] = encode_seconds(datetime_.seconds);
     I2CDevice::write_register(REGISTERS::SECOND, 1u);
     return *this;
 }
-DS3231 &DS3231::SetMinutes(uint8_t value)
+DS3231 &DS3231::setMinutes(uint8_t value)
 {
     datetime_.minutes = value % 60;
     I2CDevice::data_buffer_[0] = encode_minutes(datetime_.minutes);
     I2CDevice::write_register(REGISTERS::MINUTE, 1u);
     return *this;
 }
-DS3231 &DS3231::SetHours(uint8_t value, uint8_t is_meridial, uint8_t is_am)
+DS3231 &DS3231::setHours(uint8_t value, uint8_t is_meridial, uint8_t is_am)
 {
     if (is_meridial)
     {
@@ -274,28 +304,28 @@ DS3231 &DS3231::SetHours(uint8_t value, uint8_t is_meridial, uint8_t is_am)
     write_register(REGISTERS::HOUR, 1);
     return *this;
 }
-DS3231 &DS3231::SetDow(uint8_t value)
+DS3231 &DS3231::setDow(uint8_t value)
 {
     datetime_.dow = value % 7;
     I2CDevice::data_buffer_[0] = encode_dow(datetime_.dow);
     write_register(REGISTERS::DOW, 1);
     return *this;
 }
-DS3231 &DS3231::SetDay(uint8_t value)
+DS3231 &DS3231::setDay(uint8_t value)
 {
     datetime_.day = std::min(uint8_t(31), value);
     I2CDevice::data_buffer_[0] = encode_day(datetime_.day);
     write_register(REGISTERS::DAY, 1);
     return *this;
 }
-DS3231 &DS3231::SetMonth(uint8_t value)
+DS3231 &DS3231::setMonth(uint8_t value)
 {
     datetime_.month = std::max(std::min(uint8_t(12u), value), uint8_t(1));
     I2CDevice::data_buffer_[0] = datetime_.month;
     write_register(REGISTERS::MONTH, 1);
     return *this;
 }
-DS3231 &DS3231::SetYear(uint16_t value)
+DS3231 &DS3231::setYear(uint16_t value)
 {
     datetime_.age = value / 100;
     datetime_.year = value % 100;
@@ -304,7 +334,51 @@ DS3231 &DS3231::SetYear(uint16_t value)
     return *this;
 }
 
-void DS3231::SetDateTimeBlock(const domain::IDateTimeDetailed &datetime)
+void DS3231::readAlarm2()
+{
+    read_register(REGISTERS::ALARM2_MIN, 3);
+    alarm2_.minutes = decode_minutes(data_buffer_[0] & 0x7F);
+    alarm2_.minutes_off = (data_buffer_[0] >> 7u) & 0x01;
+    domain::IHourData iHour = decode_hours(data_buffer_[1] & 0x7F);
+    alarm2_.hours = iHour.hours;
+    alarm2_.is_pm = iHour.is_pm;
+    alarm2_.is_meridial = iHour.is_meridial;
+    alarm2_.hours_off = (data_buffer_[1] >> 7u) & 0x01;
+    alarm2_.day_off = (data_buffer_[2] >> 7u) & 0x01;
+    alarm2_.day_is_dow = (data_buffer_[2] >> 6u) & 0x01;
+    alarm2_.day = decode_day(data_buffer_[2] & 0x3F);
+    alarm2_.dow = decode_dow(data_buffer_[2] & 0x7);
+}
+
+domain::IAlarm2 &DS3231::Alarm2()
+{
+    return alarm2_;
+}
+
+void DS3231::readAlarm1()
+{
+    read_register(REGISTERS::ALARM1_SEC, 4);
+    alarm1_.seconds_off = (data_buffer_[0] >> 7u) & 0x01;
+    alarm1_.seconds = decode_seconds(data_buffer_[0] & 0x7F);
+    alarm1_.minutes = decode_minutes(data_buffer_[1] & 0x7F);
+    alarm1_.minutes_off = (data_buffer_[1] >> 7u) & 0x01;
+    domain::IHourData iHour = decode_hours(data_buffer_[2] & 0x7F);
+    alarm1_.hours = iHour.hours;
+    alarm1_.is_pm = iHour.is_pm;
+    alarm1_.is_meridial = iHour.is_meridial;
+    alarm1_.hours_off = (data_buffer_[2] >> 7u) & 0x01;
+    alarm1_.day_off = (data_buffer_[3] >> 7u) & 0x01;
+    alarm1_.day_is_dow = (data_buffer_[3] >> 6u) & 0x01;
+    alarm1_.day = decode_day(data_buffer_[3] & 0x3F);
+    alarm1_.dow = decode_dow(data_buffer_[3] & 0x7);
+}
+
+domain::IAlarm1 &DS3231::Alarm1()
+{
+    return alarm1_;
+}
+
+void DS3231::setDateTimeBlock(const domain::IDateTimeDetailed &datetime)
 {
     datetime_.seconds = datetime.seconds % 60;
     datetime_.minutes = datetime.minutes % 60;
@@ -342,99 +416,109 @@ void DS3231::SetDateTimeBlock(const domain::IDateTimeDetailed &datetime)
 
 void DS3231::init()
 {
-    ReadControls();
-    controls.EOSC = 0;
-    SetControls();
+    readControls();
+    Controls.EOSC = 0;
+    setControls();
 }
 
-uint8_t DS3231::GetSeconds()
+uint8_t DS3231::getSeconds()
 {
     read_seconds_register();
     return datetime_.seconds;
 }
 
-uint8_t DS3231::GetMinutes()
+uint8_t DS3231::getMinutes()
 {
     read_minutes_register();
     return datetime_.minutes;
 }
 
-uint8_t DS3231::GetHours()
+uint8_t DS3231::getHours()
 {
     read_hours_register();
     return datetime_.hours;
 }
-uint8_t DS3231::GetDow()
+uint8_t DS3231::getDow()
 {
     read_dow_register();
     return datetime_.dow;
 }
-uint8_t DS3231::GetDay()
+uint8_t DS3231::getDay()
 {
     read_day_register();
     return datetime_.day;
 }
-uint8_t DS3231::GetMonth()
+uint8_t DS3231::getMonth()
 {
     read_month_register();
     return datetime_.month;
 }
-uint8_t DS3231::GetAge()
+uint8_t DS3231::getAge()
 {
     return datetime_.age;
 }
-uint8_t DS3231::GetYear()
+uint8_t DS3231::getYear()
 {
     read_year_register();
     return datetime_.year;
 }
-std::string DS3231::GetFormattedSeconds()
+std::string DS3231::getFormattedSeconds()
 {
-    return common::FormatDecWithLeadingZero(GetSeconds());
+    return common::FormatDecWithLeadingZero(getSeconds());
 }
-std::string DS3231::GetFormattedMinutes()
+std::string DS3231::getFormattedMinutes()
 {
-    return common::FormatDecWithLeadingZero(GetMinutes());
+    return common::FormatDecWithLeadingZero(getMinutes());
 }
-std::string DS3231::GetFormattedHours()
+std::string DS3231::getFormattedHours()
 {
-    return common::FormatDecWithLeadingZero(GetHours());
+    return common::FormatDecWithLeadingZero(getHours());
 }
-std::string DS3231::GetFormattedDay()
+std::string DS3231::getFormattedDay()
 {
-    return common::FormatDecWithLeadingZero(GetDay());
+    return common::FormatDecWithLeadingZero(getDay());
 }
-std::string DS3231::GetFormattedMonth()
+std::string DS3231::getFormattedMonth()
 {
-    return common::FormatDecWithLeadingZero(GetMonth());
+    return common::FormatDecWithLeadingZero(getMonth());
 }
-std::string DS3231::GetFormattedYear()
+std::string DS3231::getFormattedYear()
 {
-    return common::FormatDecWithLeadingZero(GetYear());
+    return common::FormatDecWithLeadingZero(getYear());
 }
 
-domain::IDateTimeDetailed DS3231::GetDateTime()
+domain::IDateTimeDetailed DS3231::getDateTime()
 {
     read_bulk_date_time_block();
     return datetime_;
 }
 
-const domain::IDateTimeDetailed &DS3231::GetDateTimeConst()
+const domain::IDateTimeDetailed &DS3231::getDateTimeConst() const
 {
     return datetime_;
 }
 
-void DS3231::ReadControls()
+void DS3231::readControls()
 {
     read_controls();
 }
 
-DS3231 &DS3231::SetControls()
+DS3231 &DS3231::setControls()
 {
-    data_buffer_[0] = 0x00 | ((controls.EOSC & 0x01) << 7u) | ((controls.BBSQW & 0x01) << 6u) |
-                      ((controls.CONV & 0x01) << 5u) | ((controls.RS1 & 0x01) << 4u) | ((controls.RS2 & 0x01) << 3u) |
-                      ((controls.INTCN & 0x01) << 2u) | ((controls.A1IE & 0x01) << 1u) | (controls.A2IE & 0x01);
+    data_buffer_[0] = 0x00 | ((Controls.EOSC & 0x01) << 7u) | ((Controls.BBSQW & 0x01) << 6u) |
+                      ((Controls.CONV & 0x01) << 5u) | ((Controls.RS1 & 0x01) << 4u) | ((Controls.RS2 & 0x01) << 3u) |
+                      ((Controls.INTCN & 0x01) << 2u) | ((Controls.A1IE & 0x01) << 1u) | (Controls.A2IE & 0x01);
     write_register(REGISTERS::CONTROL, 1);
+    return *this;
+}
+void DS3231::readState()
+{
+    read_state();
+}
+
+DS3231 &DS3231::setState()
+{
+    set_state();
     return *this;
 }
 } // namespace DS3231

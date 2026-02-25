@@ -23,10 +23,10 @@
 #define I2C_SCL 9
 #define LED_PIN 25
 
-double pressure_max = 0, pressure_min = 9999.9;
-
 static const uint8_t max_graph_x = 60;
 static const uint8_t max_graph_y = 54;
+
+uint8_t A2F_c = 0;
 
 std::vector<double> graph;
 uint8_t graph_counter = 0;
@@ -34,21 +34,29 @@ uint8_t graph_counter = 0;
 int main()
 {
     stdio_init_all();
-
-    // I2C Initialisation. Using it at 400Khz.
     I2C i2c(I2C_PORT, I2C_SCL, I2C_SDA);
     DS3231::DS3231 ds3231(i2c.get());
     BMP180::BMP180 bmp180(i2c.get());
     SSD1315::SSD1315 ssd1315(i2c.get(), SSD1315::domain::DisplaySizeType::w128h64);
-    // example::SSD1315 example_display(i2c.get());
+    gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
     gpio_put(LED_PIN, true);
-    sleep_ms(3000);
+    sleep_ms(500);
     gpio_put(LED_PIN, false);
+    sleep_ms(500);
 
-    // ds3231.SetDateTimeBlock(DS3231::domain::IDateTimeDetailed{0, 30, 0, 0, 12, 4, 19, 2, 26, 20});
+    // ds3231.SetDateTimeBlock(DS3231::domain::IDateTimeDetailed{0, 19, 0, 0, 9, 3, 25, 2, 26, 20});
 
     ds3231.init();
+    ds3231.readControls();
+    ds3231.readState();
+    ds3231.State.A1F = ds3231.State.A2F = 0;
+    ds3231.setState();
+    ds3231.setAlarm(DS3231::domain::IAlarm2{25, 0, 0, 0, 0, 0, 0, 1, 1, 1});
+    ds3231.Controls.INTCN = ds3231.Controls.A1IE = ds3231.Controls.A2IE = 1;
+    ds3231.Controls.BBSQW = 0;
+    ds3231.setControls();
+
     bmp180.init();
     ssd1315.init();
     ssd1315.clear();
@@ -56,20 +64,44 @@ int main()
     graph.reserve(max_graph_x);
     uint8_t y0 = 63u;
 
-    ds3231.SetAlarm(DS3231::domain::IAlarm2{11, 0, 0, 12, 1, 13, 0, 0, 0, 0, 0});
-    auto buffer_ptr = ds3231.getBuffer();
-    std::cout << "buffer:" << std::endl;
-    for (uint8_t i = 0; i < 3; i++)
-    {
-        std::cout << (int)buffer_ptr.at(i) << " ";
-    }
-    std::cout << std::endl;
-
     while (true)
     {
+        auto datetime = ds3231.getDateTime();
+        auto datetime_f = datetime.AsFormatted();
+        ds3231.readState();
+        if (ds3231.State.A2F == 1)
+        {
+            A2F_c++;
+            ds3231.State.A2F = 0;
+            ds3231.setState();
+        }
         ssd1315.clearRect();
-        bmp180.ReadData();
+        buf_ss << std::setw(4) << std::setprecision(3) << bmp180.temperature();
+        ssd1315.setCursor(0, 0)
+            .setString(datetime_f.day)
+            .setChar('.')
+            .setString(datetime_f.month)
+            .setChar('.')
+            .setString(datetime_f.year)
+            .setCursor(0, 8)
+            .setString(datetime_f.hours)
+            .setChar(':')
+            .setString(datetime_f.minutes)
+            .setChar(':')
+            .setString(datetime_f.seconds)
+            .setCursor(92, 8)
+            .setString(buf_ss.str())
+            .setDegree()
+            .setChar('C');
 
+        buf_ss.str("");
+        buf_ss << "A2:" << (int)ds3231.State.A2F;
+        ssd1315.setCursor(92, 16).setString(buf_ss.str());
+        buf_ss.str("");
+        buf_ss << "A2c:" << (int)A2F_c;
+        ssd1315.setCursor(86, 24).setString(buf_ss.str());
+
+        bmp180.ReadData();
         if (graph.size() < max_graph_x)
         {
             graph.push_back(bmp180.pressure());
@@ -82,48 +114,24 @@ int main()
                 graph_counter = 0;
             }
         }
-
-        pressure_max = std::max(pressure_max, bmp180.pressure());
-        pressure_min = std::min(pressure_min, bmp180.pressure());
-
-        auto datetime_f = ds3231.GetDateTime().AsFormatted();
-        buf_ss << std::setw(4) << std::setprecision(3) << bmp180.temperature();
-        ssd1315.setCursor(0, 0)
-            .setString(datetime_f.hours)
-            .setChar(':')
-            .setString(datetime_f.minutes)
-            .setCursor(68, 0)
-            .setString(datetime_f.day)
-            .setChar('.')
-            .setString(datetime_f.month)
-            .setChar('.')
-            .setString(datetime_f.year)
-            .setCursor(92, 8)
-            .setString(buf_ss.str())
-            .setDegree()
-            .setChar('C')
-            .setChar(' ');
-        buf_ss.str("");
-        buf_ss << std::setprecision(4) << pressure_max;
-        ssd1315.setCursor(0, 40).setString(buf_ss.str());
-
-        buf_ss.str("");
-        buf_ss << std::setprecision(4) << pressure_min;
-        ssd1315.setCursor(0, 56).setString(buf_ss.str());
-
-        buf_ss.str("");
-        buf_ss << std::setprecision(4) << bmp180.pressure();
-
-        double graph_ratio = (pressure_max - pressure_min) / 24.;
         if (graph.size() > 0)
         {
+            buf_ss.str("");
+            buf_ss << std::setprecision(4) << bmp180.max();
+            ssd1315.setCursor(0, 40).setString(buf_ss.str());
+            buf_ss.str("");
+            buf_ss << std::setprecision(4) << bmp180.min();
+            ssd1315.setCursor(0, 56).setString(buf_ss.str());
+            buf_ss.str("");
+            buf_ss << std::setprecision(4) << bmp180.pressure();
+            double graph_ratio = (bmp180.max() - bmp180.min()) / 24.;
             if (graph.size() < max_graph_x)
             {
 
                 for (uint8_t counter = 0; counter < graph.size(); counter++)
                 {
                     uint8_t x = 31u + counter;
-                    uint8_t y = 63u - (graph.at(counter) - pressure_min) / graph_ratio;
+                    uint8_t y = 63u - (graph.at(counter) - bmp180.min()) / graph_ratio;
                     if (y == 0)
                         break;
                     uint8_t y_from = std::max(y0, y);
@@ -147,7 +155,7 @@ int main()
                 for (uint8_t counter(graph_counter); counter < graph.size(); counter++)
                 {
                     uint8_t x = 31u + abs_counter++;
-                    uint8_t y = 63u - (graph.at(counter) - pressure_min) / graph_ratio;
+                    uint8_t y = 63u - (graph.at(counter) - bmp180.min()) / graph_ratio;
                     if (y == 0)
                         break;
                     uint8_t y_from = (int)std::max(y0, y);
@@ -161,7 +169,7 @@ int main()
                 for (uint8_t counter(0); counter < graph_counter; counter++)
                 {
                     uint8_t x = 31u + abs_counter++;
-                    uint8_t y = 63u - (graph.at(counter) - pressure_min) / graph_ratio;
+                    uint8_t y = 63u - (graph.at(counter) - bmp180.min()) / graph_ratio;
                     if (y == 0)
                         break;
                     uint8_t y_from = (int)std::max(y0, y);
@@ -176,7 +184,7 @@ int main()
             }
         }
 
-        ssd1315.render();
+        ssd1315.draw();
         buf_ss.str("");
         sleep_ms(1000);
     }

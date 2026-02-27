@@ -106,7 +106,7 @@ int main()
             .setString(datetime_f.minutes)
             .setChar(':')
             .setString(datetime_f.seconds)
-            .setCursor(92, 8)
+            .setCursor(92, 0)
             .setString(buf_ss.str())
             .setDegree()
             .setChar('C');
@@ -118,7 +118,6 @@ int main()
         {
             double pressure_min = bmp180.min();
             double pressure_max = bmp180.max();
-
             buf_ss.str("");
             buf_ss << std::setprecision(4) << pressure_max;
             ssd1315.setCursor(0, 40).setString(buf_ss.str());
@@ -186,7 +185,6 @@ int main()
                 ssd1315.setCursor(95, y0 <= 55 ? y0 : 55u).setString(buf_ss.str());
             }
         }
-
         ssd1315.draw();
         buf_ss.str("");
         sleep_ms(1000);

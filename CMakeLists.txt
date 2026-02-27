@@ -86,17 +86,12 @@ pico_enable_stdio_usb(RP2040_IIC_DS3231_BMP_180 1)
 
 # Add the standard library to the build
 target_link_libraries(RP2040_IIC_DS3231_BMP_180
-        pico_stdlib)
+        pico_stdlib hardware_i2c hardware_spi)
 
 # Add the standard include files to the build
 target_include_directories(RP2040_IIC_DS3231_BMP_180 PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}
 )
-
-# Add any user requested libraries
-target_link_libraries(RP2040_IIC_DS3231_BMP_180 
-        hardware_i2c hardware_spi
-        )
 
 pico_add_extra_outputs(RP2040_IIC_DS3231_BMP_180)
 

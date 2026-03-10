@@ -1,21 +1,25 @@
 #pragma once
 #include "hardware/spi.h"
 #include "pico/stdlib.h"
-namespace spi
-{
-class Spi
+
+class SPI
 {
   public:
     static const uint32_t BAUDRATE = 1000000u;
-    Spi(spi_inst_t *spi, uint8_t rx, uint8_t tx, uint8_t sck, uint8_t cs);
-    Spi() = delete;
-    Spi(const Spi &) = delete;
-    Spi(Spi &&) = delete;
+    SPI(spi_inst_t *spi, uint8_t rx, uint8_t tx, uint8_t sck, uint8_t cs);
+    SPI() = delete;
+    SPI(const SPI &) = delete;
+    SPI(SPI &&) = delete;
 
     const spi_inst_t *get();
 
-    void select();
-    void deselect();
+    void select() const;
+    void deselect() const;
+
+    int __not_in_flash_func(return_1)()
+    {
+        return 1;
+    }
 
   private:
     spi_inst_t *spi_;
@@ -25,4 +29,3 @@ class Spi
 
     static void toggleCsPin(uint8_t cs_pin, uint8_t state = 0);
 };
-}; // namespace spi

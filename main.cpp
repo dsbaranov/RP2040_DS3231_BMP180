@@ -1,3 +1,4 @@
+#include "aht10/aht10.h"
 #include "bmp180/bmp180.h"
 #include "ds3231/ds3231.h"
 #include "hardware/i2c.h"
@@ -8,7 +9,6 @@
 
 #include <cmath>
 
-// #include "ssd1315/ssd1315_example.h"
 #include <cstddef>
 #include <cstring>
 #include <deque>
@@ -17,7 +17,8 @@
 
 // I2C defines
 // This example will use I2C0 on GPIO8 (SDA) and GPIO9 (SCL) running at 400KHz.
-// Pins can be changed, see the GPIO function select table in the datasheet for information on GPIO assignments
+// Pins can be changed, see the GPIO function select table in the datasheet for
+// information on GPIO assignments
 #define I2C_PORT i2c0
 #define I2C_SDA 8
 #define I2C_SCL 9
@@ -34,10 +35,12 @@ uint8_t graph_counter = 0;
 int main()
 {
     stdio_init_all();
+    SPI spi();
     I2C i2c(I2C_PORT, I2C_SCL, I2C_SDA);
     DS3231::DS3231 ds3231(i2c.get());
     BMP180::BMP180 bmp180(i2c.get());
     SSD1315::SSD1315 ssd1315(i2c.get(), SSD1315::domain::DisplaySizeType::w128h64);
+    AHT10::AHT10 aht10(i2c.get());
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
     gpio_put(LED_PIN, true);
@@ -45,7 +48,8 @@ int main()
     gpio_put(LED_PIN, false);
     sleep_ms(500);
 
-    // ds3231.SetDateTimeBlock(DS3231::domain::IDateTimeDetailed{0, 19, 0, 0, 9, 3, 25, 2, 26, 20});
+    // ds3231.SetDateTimeBlock(DS3231::domain::IDateTimeDetailed{0,
+    // 19, 0, 0, 9, 3, 25, 2, 26, 20});
 
     ds3231.init();
     ds3231.readControls();
@@ -69,7 +73,7 @@ int main()
         auto datetime = ds3231.getDateTime();
         auto datetime_f = datetime.AsFormatted();
         ds3231.readState();
-        bmp180.ReadData(false);
+        aht10.readData();
         if (ds3231.State.A2F == 1)
         {
             A2F_c++;
@@ -93,7 +97,7 @@ int main()
             }
         }
         ssd1315.clearRect();
-        buf_ss << std::setw(4) << std::setprecision(3) << bmp180.temperature();
+        buf_ss << std::setw(4) << std::setprecision(3) << aht10.temperature();
         ssd1315.setCursor(0, 0)
             .setString(datetime_f.day)
             .setChar('.')
@@ -110,6 +114,9 @@ int main()
             .setString(buf_ss.str())
             .setDegree()
             .setChar('C');
+        buf_ss.str("");
+        buf_ss << std::setprecision(3) << aht10.humidity() << "%";
+        ssd1315.setCursor(92, 8).setString(buf_ss.str());
         buf_ss.str("");
         buf_ss << "A2:" << (int)ds3231.State.A2F << " " << (int)A2F_c;
         ssd1315.setCursor(0, 16).setString(buf_ss.str());
@@ -187,6 +194,8 @@ int main()
         }
         ssd1315.draw();
         buf_ss.str("");
+
+        std::cout << std::setprecision(4) << aht10.humidity() << " " << aht10.temperature() << std::endl;
         sleep_ms(1000);
     }
 }

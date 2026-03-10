@@ -67,6 +67,10 @@ ${LIBDIR}/ssd1315/ssd1315_registers.h
 ${LIBDIR}/ssd1315/ssd1315_font.h
 ${LIBDIR}/spi/spi_entity.h
 ${LIBDIR}/spi/spi_entity.cpp
+
+${LIBDIR}/aht10/aht10.h
+${LIBDIR}/aht10/aht10.cpp
+${LIBDIR}/aht10/aht10_registers.h
 )
 
 # Add executable. Default name is the project name, version 0.1

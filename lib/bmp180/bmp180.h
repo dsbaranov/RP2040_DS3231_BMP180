@@ -37,14 +37,14 @@ class BMP180 : public I2CDevice
     long temperature_raw = 0, pressure_raw = 0;
     domain::MeasureDiscretion oss_ = domain::MeasureDiscretion::x1;
 
-    uint8_t GetOssIndex() const;
+    uint8_t getOssIndex() const;
 
-    void SendMeasureCommand(domain::MeasureCommand command);
-    bool ReadMeasureFlag();
-    bool ExecuteMeasure(domain::MeasureCommand command, uint8_t attempts);
-    void GetTemperature();
-    void GetPressure();
-    void ExecuteCalculation(bool statistics = true);
+    void sendMeasureCommand(domain::MeasureCommand command);
+    bool readMeasureFlag();
+    bool executeMeasure(domain::MeasureCommand command, uint8_t attempts);
+    void getTemperature();
+    void getPressure();
+    void executeCalculation(bool including_pressure = true);
 };
 
 } // namespace BMP180

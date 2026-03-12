@@ -4,6 +4,7 @@
 #include "hardware/i2c.h"
 #include "i2c/i2c_entity.h"
 #include "pico/stdlib.h"
+#include "spi/spi_device.h"
 #include "spi/spi_entity.h"
 #include "ssd1315/ssd1315.h"
 
@@ -24,6 +25,12 @@
 #define I2C_SCL 9
 #define LED_PIN 25
 
+#define SPI_PORT spi0
+#define SPI_RX 16
+#define SPI_TX 19
+#define SPI_SCK 18
+#define SPI_CS 17
+
 static const uint8_t max_graph_x = 60;
 static const uint8_t max_graph_y = 54;
 
@@ -35,12 +42,13 @@ uint8_t graph_counter = 0;
 int main()
 {
     stdio_init_all();
-    SPI spi();
-    I2C i2c(I2C_PORT, I2C_SCL, I2C_SDA);
-    DS3231::DS3231 ds3231(i2c.get());
-    BMP180::BMP180 bmp180(i2c.get());
-    SSD1315::SSD1315 ssd1315(i2c.get(), SSD1315::domain::DisplaySizeType::w128h64);
-    AHT10::AHT10 aht10(i2c.get());
+    SPI spi_i(SPI_PORT, SPI_RX, SPI_TX, SPI_SCK);
+    SPIDevice spiDevice(spi_i.get(), SPI_CS);
+    I2C i2c_i(I2C_PORT, I2C_SCL, I2C_SDA);
+    DS3231::DS3231 ds3231(i2c_i.get());
+    BMP180::BMP180 bmp180(i2c_i.get());
+    SSD1315::SSD1315 ssd1315(i2c_i.get(), SSD1315::domain::DisplaySizeType::w128h64);
+    AHT10::AHT10 aht10(i2c_i.get());
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
     gpio_put(LED_PIN, true);

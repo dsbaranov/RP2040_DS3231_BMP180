@@ -1,36 +1,16 @@
 #include "spi_entity.h"
 
-SPI::SPI(spi_inst_t *spi, uint8_t rx, uint8_t tx, uint8_t sck, uint8_t cs) : spi_(spi), cs_(cs)
+SPI::SPI(spi_inst_t *spi, uint8_t rx, uint8_t tx, uint8_t sck) : spi_(spi)
 {
-    init(spi, rx, tx, sck, cs);
+    init(spi, rx, tx, sck);
 }
 
-void SPI::init(spi_inst_t *spi, uint8_t rx, uint8_t tx, uint8_t sck, uint8_t cs, uint32_t baudrate)
+void SPI::init(spi_inst_t *spi, uint8_t rx, uint8_t tx, uint8_t sck, uint32_t baudrate)
 {
     gpio_set_function(rx, GPIO_FUNC_SPI);
     gpio_set_function(tx, GPIO_FUNC_SPI);
     gpio_set_function(sck, GPIO_FUNC_SPI);
     spi_init(spi, baudrate);
-    gpio_init(cs);
-    gpio_set_dir(cs, GPIO_OUT);
-    gpio_put(cs, 1);
-}
-
-void SPI::toggleCsPin(uint8_t cs_pin, uint8_t state)
-{
-    asm volatile("nop \n nop \n nop");
-    gpio_put(cs_pin, state);
-    asm volatile("nop \n nop \n nop");
-}
-
-void SPI::select() const
-{
-    toggleCsPin(cs_, 0);
-}
-
-void SPI::deselect() const
-{
-    toggleCsPin(cs_, 1);
 }
 
 const spi_inst_t *SPI::get()

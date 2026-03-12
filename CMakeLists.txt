@@ -65,8 +65,11 @@ ${LIBDIR}/ssd1315/ssd1315_domain.h
 ${LIBDIR}/ssd1315/ssd1315_domain.cpp
 ${LIBDIR}/ssd1315/ssd1315_registers.h
 ${LIBDIR}/ssd1315/ssd1315_font.h
+
 ${LIBDIR}/spi/spi_entity.h
 ${LIBDIR}/spi/spi_entity.cpp
+${LIBDIR}/spi/spi_device.h
+${LIBDIR}/spi/spi_device.cpp
 
 ${LIBDIR}/aht10/aht10.h
 ${LIBDIR}/aht10/aht10.cpp

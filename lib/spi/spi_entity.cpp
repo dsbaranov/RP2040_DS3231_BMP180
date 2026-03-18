@@ -13,6 +13,13 @@ void SPI::init(spi_inst_t *spi, uint8_t rx, uint8_t tx, uint8_t sck, uint32_t ba
     spi_init(spi, baudrate);
 }
 
+void SPI::toggleCsPin(uint8_t cs_pin, uint8_t state)
+{
+    asm volatile("nop \n nop \n nop");
+    gpio_put(cs_pin, state);
+    asm volatile("nop \n nop \n nop");
+}
+
 const spi_inst_t *SPI::get()
 {
     return spi_;

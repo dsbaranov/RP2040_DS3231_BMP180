@@ -7,8 +7,8 @@
 namespace BMP180
 {
 
-class BMP180 : public I2CDevice
-{
+  class BMP180 : public I2CDevice
+  {
   public:
     BMP180(i2c_inst_t *i2c);
     BMP180() = delete;
@@ -25,7 +25,7 @@ class BMP180 : public I2CDevice
 
     void Flush();
 
-    void init();
+    void init() override;
     double min();
     double max();
 
@@ -45,6 +45,6 @@ class BMP180 : public I2CDevice
     void getTemperature();
     void getPressure();
     void executeCalculation(bool including_pressure = true);
-};
+  };
 
 } // namespace BMP180

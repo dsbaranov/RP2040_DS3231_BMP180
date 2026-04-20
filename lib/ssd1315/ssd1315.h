@@ -7,8 +7,8 @@
 namespace SSD1315
 {
 
-class SSD1315 : public I2CDevice
-{
+  class SSD1315 : public I2CDevice
+  {
   private:
     domain::Size size_;
     const static uint8_t PAGES = 8u;
@@ -26,7 +26,7 @@ class SSD1315 : public I2CDevice
     SSD1315(const SSD1315 &) = delete;
     SSD1315(SSD1315 &&) = delete;
 
-    SSD1315 &init();
+    void init() override;
 
     SSD1315 &draw();
     SSD1315 &setPixel(uint8_t x, uint8_t y, uint8_t on = false);
@@ -39,10 +39,10 @@ class SSD1315 : public I2CDevice
     SSD1315 &setDegree(uint8_t x, uint8_t y);
     SSD1315 &setDegree();
     SSD1315 &clearRect();
-    SSD1315& clearRect(uint8_t x, uint8_t y, uint8_t width, uint8_t height);
+    SSD1315 &clearRect(uint8_t x, uint8_t y, uint8_t width, uint8_t height);
     SSD1315 &clear();
 
     ~SSD1315();
-};
+  };
 
 } // namespace SSD1315

@@ -60,15 +60,6 @@ int main()
     // 19, 0, 0, 9, 3, 25, 2, 26, 20});
 
     ds3231.init();
-    ds3231.readControls();
-    ds3231.readState();
-    ds3231.State.A1F = ds3231.State.A2F = 0;
-    ds3231.setState();
-    ds3231.setAlarm(DS3231::domain::IAlarm2{25, 0, 0, 0, 0, 0, 0, 1, 1, 1});
-    ds3231.Controls.INTCN = ds3231.Controls.A1IE = ds3231.Controls.A2IE = 1;
-    ds3231.Controls.BBSQW = 0;
-    ds3231.setControls();
-
     bmp180.init();
     ssd1315.init();
     ssd1315.clear();
@@ -129,77 +120,75 @@ int main()
         buf_ss << "A2:" << (int)ds3231.State.A2F << " " << (int)A2F_c;
         ssd1315.setCursor(0, 16).setString(buf_ss.str());
 
-        if (graph.size() > 0)
-        {
-            double pressure_min = bmp180.min();
-            double pressure_max = bmp180.max();
-            buf_ss.str("");
-            buf_ss << std::setprecision(4) << pressure_max;
-            ssd1315.setCursor(0, 40).setString(buf_ss.str());
-            buf_ss.str("");
-            buf_ss << std::setprecision(4) << pressure_min;
-            ssd1315.setCursor(0, 56).setString(buf_ss.str());
+        double pressure_min = bmp180.min();
+        double pressure_max = bmp180.max();
+        buf_ss.str("");
+        buf_ss << std::setprecision(4) << pressure_max;
+        ssd1315.setCursor(0, 40).setString(buf_ss.str());
+        buf_ss.str("");
+        buf_ss << std::setprecision(4) << pressure_min;
+        ssd1315.setCursor(0, 56).setString(buf_ss.str());
 
-            buf_ss.str("");
-            buf_ss << std::setprecision(4) << bmp180.pressure();
-            double graph_ratio = (pressure_max - pressure_min) / 24.;
-            if (graph.size() < max_graph_x)
+        buf_ss.str("");
+        buf_ss << std::setprecision(4) << bmp180.pressure();
+        double graph_ratio = (pressure_max - pressure_min) / 24.;
+        if (graph.size() > 0 && graph.size() < max_graph_x)
+        {
+            for (uint8_t counter = 0; counter < graph.size(); counter++)
             {
-                for (uint8_t counter = 0; counter < graph.size(); counter++)
+                uint8_t x = 31u + counter;
+                uint8_t y = 63u - (graph.at(counter) - pressure_min) / graph_ratio;
+                if (y == 0)
+                    break;
+                uint8_t y_from = std::max(y0, y);
+                uint8_t y_to = std::min(y0, y);
+                if (counter == graph.size() - 1)
+                    ssd1315.setCursor(x + 1, y0 <= 55 ? y0 : 55u)
+                        .setString("     ")
+                        .setCursor(x + 2, y <= 55 ? y : 55u)
+                        .setString(buf_ss.str());
+                for (; y_from >= y_to; --y_from)
                 {
-                    uint8_t x = 31u + counter;
-                    uint8_t y = 63u - (graph.at(counter) - pressure_min) / graph_ratio;
-                    if (y == 0)
-                        break;
-                    uint8_t y_from = std::max(y0, y);
-                    uint8_t y_to = std::min(y0, y);
-                    if (counter == graph.size() - 1)
-                        ssd1315.setCursor(x + 1, y0 <= 55 ? y0 : 55u)
-                            .setString("     ")
-                            .setCursor(x + 2, y <= 55 ? y : 55u)
-                            .setString(buf_ss.str());
-                    for (; y_from >= y_to; --y_from)
-                    {
-                        ssd1315.setPixel(x, y_from, 1u);
-                    }
-                    y0 = y;
+                    ssd1315.setPixel(x, y_from, 1u);
                 }
-            }
-            else
-            {
-                uint8_t abs_counter = 0;
-                ssd1315.setCursor(97, y0).setString("     ");
-                for (uint8_t counter(graph_counter); counter < graph.size(); counter++)
-                {
-                    uint8_t x = 31u + abs_counter++;
-                    uint8_t y = 63u - (graph.at(counter) - pressure_min) / graph_ratio;
-                    if (y == 0)
-                        break;
-                    uint8_t y_from = (int)std::max(y0, y);
-                    uint8_t y_to = (int)std::min(y0, y);
-                    for (; y_from >= y_to; --y_from)
-                    {
-                        ssd1315.setPixel(x, y_from, 1u);
-                    }
-                    y0 = y;
-                }
-                for (uint8_t counter(0); counter < graph_counter; counter++)
-                {
-                    uint8_t x = 31u + abs_counter++;
-                    uint8_t y = 63u - (graph.at(counter) - pressure_min) / graph_ratio;
-                    if (y == 0)
-                        break;
-                    uint8_t y_from = (int)std::max(y0, y);
-                    uint8_t y_to = (int)std::min(y0, y);
-                    for (; y_from >= y_to; --y_from)
-                    {
-                        ssd1315.setPixel(x, y_from, 1u);
-                    }
-                    y0 = y;
-                }
-                ssd1315.setCursor(95, y0 <= 55 ? y0 : 55u).setString(buf_ss.str());
+                y0 = y;
             }
         }
+        else
+        {
+            uint8_t abs_counter = 0;
+            ssd1315.setCursor(97, y0).setString("     ");
+            for (uint8_t counter(graph_counter); counter < graph.size(); counter++)
+            {
+                uint8_t x = 31u + abs_counter++;
+                uint8_t y = 63u - (graph.at(counter) - pressure_min) / graph_ratio;
+                if (y == 0)
+                    break;
+                uint8_t y_from = (int)std::max(y0, y);
+                uint8_t y_to = (int)std::min(y0, y);
+                for (; y_from >= y_to; --y_from)
+                {
+                    ssd1315.setPixel(x, y_from, 1u);
+                }
+                y0 = y;
+            }
+            for (uint8_t counter(0); counter < graph_counter; counter++)
+            {
+                uint8_t x = 31u + abs_counter++;
+                uint8_t y = 63u - (graph.at(counter) - pressure_min) / graph_ratio;
+                if (y == 0)
+                    break;
+                uint8_t y_from = (int)std::max(y0, y);
+                uint8_t y_to = (int)std::min(y0, y);
+                for (; y_from >= y_to; --y_from)
+                {
+                    ssd1315.setPixel(x, y_from, 1u);
+                }
+                y0 = y;
+            }
+            ssd1315.setCursor(95, y0 <= 55 ? y0 : 55u).setString(buf_ss.str());
+        }
+
         ssd1315.draw();
         buf_ss.str("");
 

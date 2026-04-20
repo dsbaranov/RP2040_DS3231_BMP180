@@ -39,11 +39,11 @@ I2CDevice::I2CDevice(i2c_inst_t *i2c, uint8_t device_address)
  * @param reg <uint8_t> - регистр памяти
  * @param n_regs <size_t> - количество считываемых байт (из data_buffer_)
  */
-void I2CDevice::read_register(uint8_t reg, size_t n_regs)
+void I2CDevice::read_register(uint8_t reg, size_t n_bytes)
 {
     data_buffer_[0] = reg;
     i2c_write_timeout_us(i2c_, device_address_, data_buffer_.data(), 1, true, timeout_us_);
-    i2c_read_timeout_us(i2c_, device_address_, data_buffer_.data(), n_regs, false, timeout_us_);
+    i2c_read_timeout_us(i2c_, device_address_, data_buffer_.data(), n_bytes, false, timeout_us_);
 }
 
 /**
@@ -51,15 +51,10 @@ void I2CDevice::read_register(uint8_t reg, size_t n_regs)
  * @param reg <uint8_t> - регистр памяти
  * @param n_regs <size_t> - количество записываемых байт (из data_buffer_)
  */
-void I2CDevice::write_register(uint8_t reg, size_t n_regs)
+void I2CDevice::write_register(uint8_t reg, size_t n_bytes)
 {
-    std::vector<uint8_t> buffer(++n_regs, 0);
+    std::vector<uint8_t> buffer(++n_bytes, 0);
     buffer[0] = reg;
-    std::copy(data_buffer_.begin(), data_buffer_.begin() + n_regs - 1, buffer.begin() + 1);
-    i2c_write_timeout_us(i2c_, device_address_, buffer.data(), n_regs, false, timeout_us_);
-}
-
-I2CDevice::~I2CDevice()
-{
-    data_buffer_.clear();
+    std::copy(data_buffer_.begin(), data_buffer_.begin() + n_bytes - 1, buffer.begin() + 1);
+    i2c_write_timeout_us(i2c_, device_address_, buffer.data(), n_bytes, false, timeout_us_);
 }

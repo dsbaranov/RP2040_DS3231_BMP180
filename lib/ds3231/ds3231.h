@@ -6,17 +6,17 @@
 
 namespace DS3231
 {
-using namespace REGISTERS;
+  using namespace REGISTERS;
 
-class DS3231 : public I2CDevice
-{
+  class DS3231 : public I2CDevice
+  {
   private:
     domain::IDateTimeDetailed datetime_;
     domain::IAlarm1 alarm1_;
     domain::IAlarm2 alarm2_;
 
   public:
-    domain::Controls Controls;
+    domain::Controls controls;
     domain::State State;
 
     DS3231(i2c_inst_t *i2c);
@@ -24,7 +24,7 @@ class DS3231 : public I2CDevice
     DS3231(const DS3231 &) = delete;
     DS3231(DS3231 &&) = delete;
 
-    void init();
+    void init() override;
 
     uint8_t getSeconds();
     uint8_t getMinutes();
@@ -49,10 +49,11 @@ class DS3231 : public I2CDevice
     DS3231 &setMonth(uint8_t value);
     DS3231 &setYear(uint16_t value);
 
-    template <typename T> DS3231 &setAlarm(T &&interface)
+    template <typename T>
+    DS3231 &setAlarm(T &&interface)
     {
-        set_alarm(std::forward<T>(interface));
-        return *this;
+      set_alarm(std::forward<T>(interface));
+      return *this;
     }
 
     void readAlarm1();
@@ -74,7 +75,7 @@ class DS3231 : public I2CDevice
 
     const std::vector<uint8_t> &getBuffer()
     {
-        return data_buffer_;
+      return data_buffer_;
     }
 
   private:
@@ -109,5 +110,5 @@ class DS3231 : public I2CDevice
     void read_controls();
     void read_state();
     void set_state();
-};
+  };
 } // namespace DS3231

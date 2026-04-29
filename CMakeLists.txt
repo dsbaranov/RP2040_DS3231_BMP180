@@ -70,6 +70,8 @@ ${LIBDIR}/spi/spi_entity.h
 ${LIBDIR}/spi/spi_entity.cpp
 ${LIBDIR}/spi/spi_device.h
 ${LIBDIR}/spi/spi_device.cpp
+${LIBDIR}/spi/spi_common.h
+${LIBDIR}/spi/spi_common.cpp
 
 ${LIBDIR}/aht10/aht10.h
 ${LIBDIR}/aht10/aht10.cpp

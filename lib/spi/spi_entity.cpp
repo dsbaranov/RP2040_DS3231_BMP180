@@ -20,7 +20,7 @@ void SPI::toggleCsPin(uint8_t cs_pin, uint8_t state)
     asm volatile("nop \n nop \n nop");
 }
 
-const spi_inst_t *SPI::get()
+spi_inst_t *SPI::get()
 {
     return spi_;
 }

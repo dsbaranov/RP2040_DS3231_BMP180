@@ -4,8 +4,8 @@
 #include "hardware/i2c.h"
 #include "i2c/i2c_entity.h"
 #include "pico/stdlib.h"
-#include "spi/spi_device.h"
 #include "spi/spi_entity.h"
+#include "w25q32bv/w25q32bv.h"
 #include "ssd1315/ssd1315.h"
 
 #include <cmath>
@@ -43,12 +43,13 @@ int main()
 {
     stdio_init_all();
     SPI spi_i(SPI_PORT, SPI_RX, SPI_TX, SPI_SCK);
-    SPIDevice spiDevice(spi_i.get(), SPI_CS);
+
     I2C i2c_i(I2C_PORT, I2C_SCL, I2C_SDA);
     DS3231::DS3231 ds3231(i2c_i.get());
     BMP180::BMP180 bmp180(i2c_i.get());
     SSD1315::SSD1315 ssd1315(i2c_i.get(), SSD1315::domain::DisplaySizeType::w128h64);
     AHT10::AHT10 aht10(i2c_i.get());
+    W25Q32BV w25q32bv(spi_i.get(), SPI_CS);
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
     gpio_put(LED_PIN, true);
@@ -63,6 +64,28 @@ int main()
     bmp180.init();
     ssd1315.init();
     ssd1315.clear();
+    {
+        auto flash_datetime = ds3231.getDateTime();
+        std::vector<uint8_t> wbuf{flash_datetime.hours, flash_datetime.minutes, flash_datetime.seconds, flash_datetime.dow};
+        std::cout << "erasing sector 0x00...";
+        w25q32bv.flash_sector_erase(0x00);
+        std::cout << "done." << std::endl;
+        std::cout << "writing pages... ";
+        for (uint8_t val : wbuf)
+        {
+            std::cout << (int)val << " ";
+        }
+        w25q32bv.flash_page_program(0x00, wbuf.data());
+        std::cout << "done." << std::endl;
+        std::cout << "reading pages... ";
+        std::vector<uint8_t> rbuf(4);
+        w25q32bv.flash_read(0x00, rbuf.data(), 4);
+        for (uint8_t val : rbuf)
+        {
+            std::cout << (int)val << " ";
+        }
+        std::cout << "done." << std::endl;
+    }
     std::stringstream buf_ss("");
     graph.reserve(max_graph_x);
     uint8_t y0 = 63u;
@@ -191,8 +214,6 @@ int main()
 
         ssd1315.draw();
         buf_ss.str("");
-
-        std::cout << std::setprecision(4) << aht10.humidity() << " " << aht10.temperature() << std::endl;
         sleep_ms(1000);
     }
 }

@@ -76,6 +76,11 @@ ${LIBDIR}/spi/spi_common.cpp
 ${LIBDIR}/aht10/aht10.h
 ${LIBDIR}/aht10/aht10.cpp
 ${LIBDIR}/aht10/aht10_registers.h
+
+${LIBDIR}/w25q32bv/w25q32bv.h
+${LIBDIR}/w25q32bv/w25q32bv.cpp
+${LIBDIR}/w25q32bv/w25q32bv_common.h
+${LIBDIR}/w25q32bv/w25q32bv_common.cpp
 )
 
 # Add executable. Default name is the project name, version 0.1

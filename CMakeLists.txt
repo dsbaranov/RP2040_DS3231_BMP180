@@ -70,6 +70,8 @@ ${LIBDIR}/spi/spi_entity.h
 ${LIBDIR}/spi/spi_entity.cpp
 ${LIBDIR}/spi/spi_device.h
 ${LIBDIR}/spi/spi_device.cpp
+${LIBDIR}/spi/spi_flash_device.h
+${LIBDIR}/spi/spi_flash_device.cpp
 ${LIBDIR}/spi/spi_common.h
 ${LIBDIR}/spi/spi_common.cpp
 
@@ -81,6 +83,9 @@ ${LIBDIR}/w25q32bv/w25q32bv.h
 ${LIBDIR}/w25q32bv/w25q32bv.cpp
 ${LIBDIR}/w25q32bv/w25q32bv_common.h
 ${LIBDIR}/w25q32bv/w25q32bv_common.cpp
+
+${LIBDIR}/memory_manager/memory_manager.h
+${LIBDIR}/memory_manager/memory_manager.cpp
 )
 
 # Add executable. Default name is the project name, version 0.1

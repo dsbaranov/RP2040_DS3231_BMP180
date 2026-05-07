@@ -6,10 +6,10 @@
 class SPIDevice
 {
 protected:
-  spi_inst_t *spi_;
+  spi_inst_t *const spi_;
   uint8_t cs_;
 
-  explicit SPIDevice(spi_inst_t *spi, uint8_t cs);
+  explicit SPIDevice(spi_inst_t *const spi, uint8_t cs);
   SPIDevice() = delete;
   SPIDevice(const SPIDevice &) = delete;
   SPIDevice(SPIDevice &&) = delete;

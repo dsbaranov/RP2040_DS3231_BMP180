@@ -1,6 +1,6 @@
 #include "spi_device.h"
 
-SPIDevice::SPIDevice(spi_inst_t *spi, uint8_t cs) : spi_(spi), cs_(cs)
+SPIDevice::SPIDevice(spi_inst_t *const spi, uint8_t cs) : spi_(spi), cs_(cs)
 {
     gpio_init(cs);
     gpio_set_dir(cs, GPIO_OUT);

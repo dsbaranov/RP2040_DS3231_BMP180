@@ -20,12 +20,12 @@
 // This example will use I2C0 on GPIO8 (SDA) and GPIO9 (SCL) running at 400KHz.
 // Pins can be changed, see the GPIO function select table in the datasheet for
 // information on GPIO assignments
-#define I2C_PORT i2c0
+#define I2C_INST i2c0
 #define I2C_SDA 8
 #define I2C_SCL 9
 #define LED_PIN 25
 
-#define SPI_PORT spi0
+#define SPI_INST spi0
 #define SPI_RX 16
 #define SPI_TX 19
 #define SPI_SCK 18
@@ -42,9 +42,9 @@ uint8_t graph_counter = 0;
 int main()
 {
     stdio_init_all();
-    SPI spi_i(SPI_PORT, SPI_RX, SPI_TX, SPI_SCK);
+    SPI spi_i(SPI_INST, SPI_RX, SPI_TX, SPI_SCK);
 
-    I2C i2c_i(I2C_PORT, I2C_SCL, I2C_SDA);
+    I2C i2c_i(I2C_INST, I2C_SCL, I2C_SDA);
     DS3231::DS3231 ds3231(i2c_i.get());
     BMP180::BMP180 bmp180(i2c_i.get());
     SSD1315::SSD1315 ssd1315(i2c_i.get(), SSD1315::domain::DisplaySizeType::w128h64);
@@ -143,8 +143,8 @@ int main()
         buf_ss << "A2:" << (int)ds3231.State.A2F << " " << (int)A2F_c;
         ssd1315.setCursor(0, 16).setString(buf_ss.str());
 
-        double pressure_min = bmp180.min();
-        double pressure_max = bmp180.max();
+        double pressure_min = bmp180.getMin();
+        double pressure_max = bmp180.getMax();
         buf_ss.str("");
         buf_ss << std::setprecision(4) << pressure_max;
         ssd1315.setCursor(0, 40).setString(buf_ss.str());

@@ -1,5 +1,25 @@
 #include "w25q32bv.h"
 
+uint16_t W25Q32BV::get_number_of_blocks()
+{
+    return number_of_blocks_;
+}
+
+uint16_t W25Q32BV::get_number_of_sectors()
+{
+    return number_of_sectors_;
+}
+
+uint16_t W25Q32BV::get_number_of_pages()
+{
+    return number_of_pages_;
+}
+
+uint16_t W25Q32BV::get_page_size()
+{
+    return page_size_;
+}
+
 void W25Q32BV::flash_read(uint32_t addr, uint8_t *buf, size_t len)
 {
     select();
@@ -43,7 +63,7 @@ void W25Q32BV::flash_page_program(uint32_t addr, uint8_t data[])
     flash_write_enable();
     select();
     spi_write_blocking(getSpi(), form_cmd_buf(FLASH_CMD_PAGE_PROGRAM, addr).data(), 4);
-    spi_write_blocking(getSpi(), data, FLASH_PAGE_SIZE);
+    spi_write_blocking(getSpi(), data, page_size_);
     deselect();
     flash_wait_done();
 }

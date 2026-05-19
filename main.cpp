@@ -63,28 +63,28 @@ int main()
     bmp180.init();
     ssd1315.init();
     ssd1315.clear();
-    // {
-    //     auto flash_datetime = ds3231.getDateTime();
-    //     std::vector<uint8_t> wbuf{flash_datetime.hours, flash_datetime.minutes, flash_datetime.seconds, flash_datetime.dow};
-    //     std::cout << "erasing sector 0x00...";
-    //     w25q32bv.flash_sector_erase(0x00);
-    //     std::cout << "done." << std::endl;
-    //     std::cout << "writing pages... ";
-    //     for (uint8_t val : wbuf)
-    //     {
-    //         std::cout << (int)val << " ";
-    //     }
-    //     w25q32bv.flash_page_program(0x00, wbuf.data());
-    //     std::cout << "done." << std::endl;
-    //     std::cout << "reading pages... ";
-    //     std::vector<uint8_t> rbuf(4);
-    //     w25q32bv.flash_read(0x00, rbuf.data(), 4);
-    //     for (uint8_t val : rbuf)
-    //     {
-    //         std::cout << (int)val << " ";
-    //     }
-    //     std::cout << "done." << std::endl;
-    // }
+    {
+        auto flash_datetime = ds3231.getDateTime();
+        std::vector<uint8_t> wbuf{flash_datetime.hours, flash_datetime.minutes, flash_datetime.seconds, flash_datetime.dow};
+        std::cout << "erasing sector 0x00...";
+        w25q32bv.flash_sector_erase(0x00);
+        std::cout << "done." << std::endl;
+        std::cout << "writing pages... ";
+        for (uint8_t val : wbuf)
+        {
+            std::cout << (int)val << " ";
+        }
+        w25q32bv.flash_page_program(0x00, wbuf.data());
+        std::cout << "done." << std::endl;
+        std::cout << "reading pages... ";
+        std::vector<uint8_t> rbuf(4);
+        w25q32bv.flash_read(0x00, rbuf.data(), 4);
+        for (uint8_t val : rbuf)
+        {
+            std::cout << (int)val << " ";
+        }
+        std::cout << "done." << std::endl;
+    }
     std::stringstream buf_ss("");
     graph.reserve(max_graph_x);
     uint8_t y0 = 63u;
@@ -208,7 +208,6 @@ int main()
             }
             ssd1315.setCursor(95, y0 <= 55 ? y0 : 55u).setString(buf_ss.str());
         }
-
         ssd1315.draw();
         buf_ss.str("");
         sleep_ms(1000);

@@ -7,6 +7,7 @@
 #include "spi/spi_entity.h"
 #include "w25q32bv/w25q32bv.h"
 #include "ssd1315/ssd1315.h"
+#include "memory_manager/memory_manager_domain.h"
 
 #include <cmath>
 
@@ -32,7 +33,6 @@
 #define SPI_CS 17
 
 static const uint8_t max_graph_x = 60;
-static const uint8_t max_graph_y = 54;
 
 uint8_t A2F_c = 0;
 
@@ -57,39 +57,40 @@ int main()
     gpio_put(LED_PIN, false);
     sleep_ms(500);
 
-    // ds3231.SetDateTimeBlock(DS3231::domain::IDateTimeDetailed{0,
-    // 19, 0, 0, 9, 3, 25, 2, 26, 20});
+    // ds3231.setDateTimeBlock({0, 33, 0, 0, 22, 19, 2, 0, 5, 26, 20});
 
     ds3231.init();
     bmp180.init();
     ssd1315.init();
     ssd1315.clear();
-    {
-        auto flash_datetime = ds3231.getDateTime();
-        std::vector<uint8_t> wbuf{flash_datetime.hours, flash_datetime.minutes, flash_datetime.seconds, flash_datetime.dow};
-        std::cout << "erasing sector 0x00...";
-        w25q32bv.flash_sector_erase(0x00);
-        std::cout << "done." << std::endl;
-        std::cout << "writing pages... ";
-        for (uint8_t val : wbuf)
-        {
-            std::cout << (int)val << " ";
-        }
-        w25q32bv.flash_page_program(0x00, wbuf.data());
-        std::cout << "done." << std::endl;
-        std::cout << "reading pages... ";
-        std::vector<uint8_t> rbuf(4);
-        w25q32bv.flash_read(0x00, rbuf.data(), 4);
-        for (uint8_t val : rbuf)
-        {
-            std::cout << (int)val << " ";
-        }
-        std::cout << "done." << std::endl;
-    }
+    // {
+    //     auto flash_datetime = ds3231.getDateTime();
+    //     std::vector<uint8_t> wbuf{flash_datetime.hours, flash_datetime.minutes, flash_datetime.seconds, flash_datetime.dow};
+    //     std::cout << "erasing sector 0x00...";
+    //     w25q32bv.flash_sector_erase(0x00);
+    //     std::cout << "done." << std::endl;
+    //     std::cout << "writing pages... ";
+    //     for (uint8_t val : wbuf)
+    //     {
+    //         std::cout << (int)val << " ";
+    //     }
+    //     w25q32bv.flash_page_program(0x00, wbuf.data());
+    //     std::cout << "done." << std::endl;
+    //     std::cout << "reading pages... ";
+    //     std::vector<uint8_t> rbuf(4);
+    //     w25q32bv.flash_read(0x00, rbuf.data(), 4);
+    //     for (uint8_t val : rbuf)
+    //     {
+    //         std::cout << (int)val << " ";
+    //     }
+    //     std::cout << "done." << std::endl;
+    // }
     std::stringstream buf_ss("");
     graph.reserve(max_graph_x);
     uint8_t y0 = 63u;
 
+    std::cout << "size of MemoryDataChunk : " << sizeof(MemoryDataChunk) << std::endl;
+    bmp180.ReadData(true);
     while (true)
     {
         auto datetime = ds3231.getDateTime();
@@ -102,21 +103,21 @@ int main()
             ds3231.State.A2F = 0;
             ds3231.setState();
             bmp180.ReadData(true);
-            if (datetime.minutes % 4 == 0)
+            // if (datetime.minutes % 4 == 0)
+            // {
+            if (graph.size() < max_graph_x)
             {
-                if (graph.size() < max_graph_x)
+                graph.push_back(bmp180.pressure());
+            }
+            else
+            {
+                graph[graph_counter++] = bmp180.pressure();
+                if (graph_counter >= max_graph_x)
                 {
-                    graph.push_back(bmp180.pressure());
-                }
-                else
-                {
-                    graph[graph_counter++] = bmp180.pressure();
-                    if (graph_counter >= max_graph_x)
-                    {
-                        graph_counter = 0;
-                    }
+                    graph_counter = 0;
                 }
             }
+            // }
         }
         ssd1315.clearRect();
         buf_ss << std::setw(4) << std::setprecision(3) << aht10.temperature();
@@ -137,24 +138,20 @@ int main()
             .setDegree()
             .setChar('C');
         buf_ss.str("");
-        buf_ss << std::setprecision(3) << aht10.humidity() << "%";
+        buf_ss << (int)aht10.humidity() << "%";
         ssd1315.setCursor(92, 8).setString(buf_ss.str());
+        uint16_t pressure_min = bmp180.getMin();
+        uint16_t pressure_max = bmp180.getMax();
         buf_ss.str("");
-        buf_ss << "A2:" << (int)ds3231.State.A2F << " " << (int)A2F_c;
-        ssd1315.setCursor(0, 16).setString(buf_ss.str());
-
-        double pressure_min = bmp180.getMin();
-        double pressure_max = bmp180.getMax();
+        buf_ss << pressure_max;
+        ssd1315.setCursor(0, 18).setString(buf_ss.str());
         buf_ss.str("");
-        buf_ss << std::setprecision(4) << pressure_max;
-        ssd1315.setCursor(0, 40).setString(buf_ss.str());
-        buf_ss.str("");
-        buf_ss << std::setprecision(4) << pressure_min;
+        buf_ss << pressure_min;
         ssd1315.setCursor(0, 56).setString(buf_ss.str());
 
         buf_ss.str("");
-        buf_ss << std::setprecision(4) << bmp180.pressure();
-        double graph_ratio = (pressure_max - pressure_min) / 24.;
+        buf_ss << bmp180.pressure();
+        double graph_ratio = (pressure_max - pressure_min) / 44.;
         if (graph.size() > 0 && graph.size() < max_graph_x)
         {
             for (uint8_t counter = 0; counter < graph.size(); counter++)

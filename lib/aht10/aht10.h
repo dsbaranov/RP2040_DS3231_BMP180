@@ -21,8 +21,8 @@ namespace AHT10
 
     void readData();
 
-    double temperature() const;
-    double humidity() const;
+    float temperature() const;
+    uint8_t humidity() const;
 
     const std::vector<uint8_t> &getBuffer() const
     {
@@ -30,8 +30,8 @@ namespace AHT10
     }
 
   private:
-    double temperature_ = 0;
-    double humidity_ = 0;
+    float temperature_ = 0;
+    uint8_t humidity_ = 0;
 
     static long byteToLongWithShift(uint8_t value, unsigned shift = 0);
   };

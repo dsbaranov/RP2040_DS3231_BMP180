@@ -21,20 +21,20 @@ namespace BMP180
     void ReadData(bool including_pressure = true);
 
     float temperature() const;
-    double pressure() const;
+    uint16_t pressure() const;
 
     void Flush();
 
     void init() override;
-    double getMin() const;
-    double getMax() const;
-    void setMin(double value);
-    void setMax(double value);
+    uint16_t getMin() const;
+    uint16_t getMax() const;
+    void setMin(uint16_t value);
+    void setMax(uint16_t value);
 
   private:
-    double pressure_min_ = 999., pressure_max_ = 0.;
+    uint16_t pressure_min_ = 999, pressure_max_ = 0;
     double temperature_ = 0.;
-    double pressure_ = 0.;
+    uint16_t pressure_ = 0;
     domain::Coefficients coefficients;
     long temperature_raw = 0, pressure_raw = 0;
     domain::MeasureDiscretion oss_ = domain::MeasureDiscretion::x1;

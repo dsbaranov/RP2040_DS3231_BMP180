@@ -20,14 +20,14 @@ namespace AHT10
                   byteToLongWithShift(data_buffer_.at(5), 0);
         RT = static_cast<double>(raw_val);
         double divider = pow(2, 20);
-        humidity_ = (RH / divider) * 100.;
-        temperature_ = ((RT / divider) * 200.) - 50.;
+        humidity_ = static_cast<uint8_t>(((RH / divider) * 100.));
+        temperature_ = static_cast<float>(((RT / divider) * 200.) - 50.);
     }
-    double AHT10::temperature() const
+    float AHT10::temperature() const
     {
         return temperature_;
     }
-    double AHT10::humidity() const
+    uint8_t AHT10::humidity() const
     {
         return humidity_;
     }

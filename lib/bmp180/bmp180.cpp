@@ -65,7 +65,7 @@ namespace BMP180
     {
         return temperature_;
     }
-    double BMP180::pressure() const
+    uint16_t BMP180::pressure() const
     {
         return pressure_;
     }
@@ -81,22 +81,22 @@ namespace BMP180
         readCoefficients();
     }
 
-    double BMP180::getMin() const
+    uint16_t BMP180::getMin() const
     {
         return pressure_min_;
     }
 
-    double BMP180::getMax() const
+    uint16_t BMP180::getMax() const
     {
         return pressure_max_;
     }
 
-    void BMP180::setMin(double value)
+    void BMP180::setMin(uint16_t value)
     {
         pressure_min_ = value;
     }
 
-    void BMP180::setMax(double value)
+    void BMP180::setMax(uint16_t value)
     {
         pressure_max_ = value;
     }
@@ -227,7 +227,7 @@ namespace BMP180
         pressure_raw = pressure_raw + ((X1 + X2 + 3791) >> 4);
         if (including_pressure)
         {
-            pressure_ = static_cast<double>(static_cast<unsigned>(static_cast<double>(pressure_raw) * 0.07500615f)) / 10.f;
+            pressure_ = static_cast<uint16_t>(static_cast<double>(pressure_raw) * 0.007500615f);
             pressure_min_ = std::min(pressure_, pressure_min_);
             pressure_max_ = std::max(pressure_, pressure_max_);
         }

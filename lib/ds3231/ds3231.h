@@ -62,6 +62,23 @@ namespace DS3231
     void readAlarm2();
     domain::IAlarm2 &Alarm2();
 
+    // uint8_t seconds_ = 0, uint8_t minutes_ = 0, uint8_t is_meridial_ = 0, uint8_t is_pm_ = 0,
+    //         uint8_t hours_ = 0, uint8_t day_ = 0, uint8_t dow_ = 0, uint8_t day_is_dow_ = 0,
+    //         uint8_t month_ = 0, uint8_t year_ = 0, uint8_t age_ = 20
+
+    /// @brief Установка времени в модуль времени
+    /// @param datetime IDateTimeDetailed:
+    /// @param seconds секунды (0 - 59)
+    /// @param minutes минуты (0 - 59)
+    /// @param is_meridial исчисление часов в 12-часовом формате (0 = false, 1 = true)
+    /// @param is_pm при is_meridial(1) считается в диапазоне 12 часов после полудня
+    /// @param hours часы
+    /// @param day день месяца
+    /// @param dow день недели ( 1 - 7 )
+    /// @param day_is_dow  день месяца - это день недели (1 - true, 0 - false)
+    /// @param month  месяц (0 - 12)
+    /// @param year год (0 - 99)
+    /// @param age век (0 - 65535, что врядли)
     void setDateTimeBlock(const domain::IDateTimeDetailed &datetime);
 
     domain::IDateTimeDetailed getDateTime();

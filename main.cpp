@@ -66,9 +66,20 @@ int main()
     {
         auto flash_datetime = ds3231.getDateTime();
         std::vector<uint8_t> wbuf{flash_datetime.hours, flash_datetime.minutes, flash_datetime.seconds, flash_datetime.dow};
+        std::vector<uint8_t> rbuf(4);
+        /// reading
+        std::cout << "reading pages... ";
+        w25q32bv.flash_read(0x00, rbuf.data(), 4);
+        for (uint8_t val : rbuf)
+        {
+            std::cout << (int)val << " ";
+        }
+        std::cout << "done." << std::endl;
+        /// erasing
         std::cout << "erasing sector 0x00...";
         w25q32bv.flash_sector_erase(0x00);
         std::cout << "done." << std::endl;
+        /// writing
         std::cout << "writing pages... ";
         for (uint8_t val : wbuf)
         {
@@ -76,8 +87,8 @@ int main()
         }
         w25q32bv.flash_page_program(0x00, wbuf.data());
         std::cout << "done." << std::endl;
+        /// reading
         std::cout << "reading pages... ";
-        std::vector<uint8_t> rbuf(4);
         w25q32bv.flash_read(0x00, rbuf.data(), 4);
         for (uint8_t val : rbuf)
         {

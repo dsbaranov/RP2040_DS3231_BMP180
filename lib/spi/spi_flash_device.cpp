@@ -1,6 +1,6 @@
 #include "spi_flash_device.h"
 
-spi_inst_t *FlashDevice::getSpi() const
+spi_inst_t *FlashDevice::getSpiPtr() const
 {
     return spi_;
 }

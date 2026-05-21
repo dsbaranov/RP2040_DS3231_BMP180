@@ -14,18 +14,18 @@ private:
     static const uint8_t FLASH_CMD_WRITE_EN = 0x06;
     static const uint8_t FLASH_CMD_SECTOR_ERASE = 0x20;
 
-    static const uint16_t number_of_blocks_ = 64;
-    static const uint16_t number_of_sectors_ = 16;
-    static const uint16_t number_of_pages_ = 16;
-    static const uint16_t page_size_ = 256;
+    static const uint32_t number_of_blocks_ = 64;
+    static const uint32_t number_of_sectors_ = 16;
+    static const uint32_t number_of_pages_ = 16;
+    static const uint32_t page_size_ = 256;
 
 public:
     W25Q32BV(spi_inst_t *const spi, uint8_t cs) : FlashDevice(spi, cs) {};
 
-    uint16_t get_number_of_blocks() override;
-    uint16_t get_number_of_sectors() override;
-    uint16_t get_number_of_pages() override;
-    uint16_t get_page_size() override;
+    uint32_t get_number_of_blocks() const override;
+    uint32_t get_number_of_sectors() const override;
+    uint32_t get_number_of_pages() const override;
+    uint32_t get_page_size() const override;
     void flash_read(uint32_t addr, uint8_t *buf, size_t len) override;
     void flash_write_enable() override;
     void flash_wait_done() override;

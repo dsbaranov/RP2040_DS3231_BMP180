@@ -57,51 +57,53 @@ int main()
     gpio_put(LED_PIN, false);
     sleep_ms(500);
 
-    // ds3231.setDateTimeBlock({0, 33, 0, 0, 22, 19, 2, 0, 5, 26, 20});
-
     ds3231.init();
+
+    // ds3231.setDateTimeBlock({44, 9, 0, 0, 2, 11, 6, 0, 7, 26, 20});
+
     bmp180.init();
     ssd1315.init();
     ssd1315.clear();
-    {
-        auto flash_datetime = ds3231.getDateTime();
-        std::vector<uint8_t> wbuf{flash_datetime.hours, flash_datetime.minutes, flash_datetime.seconds, flash_datetime.dow};
-        std::vector<uint8_t> rbuf(4);
-        /// reading
-        std::cout << "reading pages... ";
-        w25q32bv.flash_read(0x00, rbuf.data(), 4);
-        for (uint8_t val : rbuf)
-        {
-            std::cout << (int)val << " ";
-        }
-        std::cout << "done." << std::endl;
-        /// erasing
-        std::cout << "erasing sector 0x00...";
-        w25q32bv.flash_sector_erase(0x00);
-        std::cout << "done." << std::endl;
-        /// writing
-        std::cout << "writing pages... ";
-        for (uint8_t val : wbuf)
-        {
-            std::cout << (int)val << " ";
-        }
-        w25q32bv.flash_page_program(0x00, wbuf.data());
-        std::cout << "done." << std::endl;
-        /// reading
-        std::cout << "reading pages... ";
-        w25q32bv.flash_read(0x00, rbuf.data(), 4);
-        for (uint8_t val : rbuf)
-        {
-            std::cout << (int)val << " ";
-        }
-        std::cout << "done." << std::endl;
-    }
+    // {
+    //     auto flash_datetime = ds3231.getDateTime();
+    //     std::vector<uint8_t> wbuf{flash_datetime.hours, flash_datetime.minutes, flash_datetime.seconds, flash_datetime.dow};
+    //     std::vector<uint8_t> rbuf(4);
+    //     /// reading
+    //     std::cout << "reading pages... ";
+    //     w25q32bv.flash_read(0x00, rbuf.data(), 4);
+    //     for (uint8_t val : rbuf)
+    //     {
+    //         std::cout << (int)val << " ";
+    //     }
+    //     std::cout << "done." << std::endl;
+    //     /// erasing
+    //     std::cout << "erasing sector 0x00...";
+    //     w25q32bv.flash_sector_erase(0x00);
+    //     std::cout << "done." << std::endl;
+    //     /// writing
+    //     std::cout << "writing pages... ";
+    //     for (uint8_t val : wbuf)
+    //     {
+    //         std::cout << (int)val << " ";
+    //     }
+    //     w25q32bv.flash_page_program(0x00, wbuf.data());
+    //     std::cout << "done." << std::endl;
+    //     /// reading
+    //     std::cout << "reading pages... ";
+    //     w25q32bv.flash_read(0x00, rbuf.data(), 4);
+    //     for (uint8_t val : rbuf)
+    //     {
+    //         std::cout << (int)val << " ";
+    //     }
+    //     std::cout << "done." << std::endl;
+    // }
+
     std::stringstream buf_ss("");
     graph.reserve(max_graph_x);
     uint8_t y0 = 63u;
-
-    std::cout << "size of MemoryDataChunk : " << sizeof(MemoryDataChunk) << std::endl;
     bmp180.ReadData(true);
+    std::cout << "size of MemoryDataChunk : " << sizeof(MemoryDataChunk) << std::endl;
+
     while (true)
     {
         auto datetime = ds3231.getDateTime();
@@ -114,8 +116,7 @@ int main()
             ds3231.State.A2F = 0;
             ds3231.setState();
             bmp180.ReadData(true);
-            // if (datetime.minutes % 4 == 0)
-            // {
+
             if (graph.size() < max_graph_x)
             {
                 graph.push_back(bmp180.pressure());

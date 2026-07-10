@@ -14,6 +14,7 @@ private:
     static const uint8_t FLASH_CMD_WRITE_EN = 0x06;
     static const uint8_t FLASH_CMD_SECTOR_ERASE = 0x20;
 
+    // 4 194 304
     static const uint32_t number_of_blocks_ = 64;
     static const uint32_t number_of_sectors_ = 16;
     static const uint32_t number_of_pages_ = 16;

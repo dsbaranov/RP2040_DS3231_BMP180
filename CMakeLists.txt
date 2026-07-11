@@ -89,6 +89,10 @@ ${LIBDIR}/memory_manager/memory_manager.cpp
 ${LIBDIR}/memory_manager/memory_manager_domain.h
 ${LIBDIR}/memory_manager/memory_manager_domain.cpp
 
+${LIBDIR}/crc8/crc8.h
+${LIBDIR}/crc8/crc8.cpp
+
+
 )
 
 # Add executable. Default name is the project name, version 0.1

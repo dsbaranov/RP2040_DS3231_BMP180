@@ -8,9 +8,8 @@
 #include "w25q32bv/w25q32bv.h"
 #include "ssd1315/ssd1315.h"
 #include "memory_manager/memory_manager_domain.h"
-
+#include "crc8/crc8.h"
 #include <cmath>
-
 #include <cstddef>
 #include <cstring>
 #include <deque>
@@ -59,7 +58,7 @@ int main()
 
     ds3231.init();
 
-    // ds3231.setDateTimeBlock({44, 9, 0, 0, 2, 11, 6, 0, 7, 26, 20});
+    ds3231.setDateTimeBlock(DS3231::domain::IDateTimeDetailed{44, 9, 0, 0, 2, 11, 6, 0, 7, 26, 20});
 
     bmp180.init();
     ssd1315.init();
@@ -102,7 +101,8 @@ int main()
     graph.reserve(max_graph_x);
     uint8_t y0 = 63u;
     bmp180.ReadData(true);
-    std::cout << "size of MemoryDataChunk : " << sizeof(MemoryDataChunk) << std::endl;
+    std::cout << "size of MemoryDataChunk : " << sizeof(FlashDataChunk) << std::endl;
+    std::cout << "size of DataChunk : " << sizeof(DataChunk) << std::endl;
 
     while (true)
     {

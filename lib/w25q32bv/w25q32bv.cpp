@@ -1,4 +1,5 @@
 #include "w25q32bv.h"
+#include <cmath>
 
 uint32_t W25Q32BV::get_number_of_blocks() const
 {
@@ -65,12 +66,12 @@ void W25Q32BV::flash_sector_erase(uint32_t addr)
     }
 }
 
-void W25Q32BV::flash_page_program(uint32_t addr, uint8_t data[])
+void W25Q32BV::flash_page_program(uint32_t addr, uint8_t data[], uint32_t length)
 {
     flash_write_enable();
     select();
     spi_write_blocking(getSpiPtr(), form_cmd_buf(FLASH_CMD_PAGE_PROGRAM, addr).data(), 4);
-    spi_write_blocking(getSpiPtr(), data, page_size_);
+    spi_write_blocking(getSpiPtr(), data, std::min(length, page_size_));
     deselect();
     flash_wait_done();
 }

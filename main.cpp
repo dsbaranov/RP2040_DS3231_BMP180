@@ -58,7 +58,7 @@ int main()
 
     ds3231.init();
 
-    ds3231.setDateTimeBlock(DS3231::domain::IDateTimeDetailed{44, 9, 0, 0, 2, 11, 6, 0, 7, 26, 20});
+    ds3231.setDateTimeBlock(DS3231::domain::IDateTimeDetailed{0, 21, 0, 0, 22, 15, 3, 0, 7, 26, 20});
 
     bmp180.init();
     ssd1315.init();

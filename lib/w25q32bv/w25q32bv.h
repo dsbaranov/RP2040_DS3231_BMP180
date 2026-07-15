@@ -31,7 +31,7 @@ public:
     void flash_write_enable() override;
     void flash_wait_done() override;
     void flash_sector_erase(uint32_t addr) override;
-    void flash_page_program(uint32_t addr, uint8_t data[]) override;
+    void flash_page_program(uint32_t addr, uint8_t data[], uint32_t length) override;
 
     ~W25Q32BV() {};
 };

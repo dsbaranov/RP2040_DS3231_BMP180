@@ -17,7 +17,7 @@ public:
     virtual void flash_write_enable() = 0;
     virtual void flash_wait_done() = 0;
     virtual void flash_sector_erase(uint32_t addr) = 0;
-    virtual void flash_page_program(uint32_t addr, uint8_t data[]) = 0;
+    virtual void flash_page_program(uint32_t addr, uint8_t data[], uint32_t length) = 0;
 
     virtual ~FlashDevice() {}
 };

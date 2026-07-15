@@ -92,7 +92,9 @@ ${LIBDIR}/memory_manager/memory_manager_domain.cpp
 ${LIBDIR}/crc8/crc8.h
 ${LIBDIR}/crc8/crc8.cpp
 
-
+${LIBDIR}/ft24c256a/ft24c256a_registers.h
+${LIBDIR}/ft24c256a/ft24c256a.h
+${LIBDIR}/ft24c256a/ft24c256a.cpp
 )
 
 # Add executable. Default name is the project name, version 0.1

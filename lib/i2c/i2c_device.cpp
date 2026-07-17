@@ -30,8 +30,18 @@ I2CDevice::I2CDevice(i2c_inst_t *i2c, uint8_t device_address, size_t buffer_size
  * @param device_address <uint8_t> - адрес устройства на шине I2C
  */
 I2CDevice::I2CDevice(i2c_inst_t *i2c, uint8_t device_address)
-    : I2CDevice(i2c, device_address, I2CDEVICE_DEFAULT_MAX_BUFFER_SIZE)
+    : I2CDevice(i2c, device_address, I2CDEVICE_DEFAULT_BUFFER_SIZE)
 {
+}
+
+const size_t &I2CDevice::get_timeout_us() const
+{
+    return timeout_us_;
+}
+
+const uint8_t &I2CDevice::get_device_address() const
+{
+    return device_address_;
 }
 
 /**
@@ -42,7 +52,7 @@ I2CDevice::I2CDevice(i2c_inst_t *i2c, uint8_t device_address)
 void I2CDevice::read_register(uint8_t reg, size_t n_bytes)
 {
     data_buffer_[0] = reg;
-    i2c_write_timeout_us(i2c_, device_address_, data_buffer_.data(), 1, true, timeout_us_);
+    i2c_write_timeout_us(i2c_, device_address_, data_buffer_.data(), sizeof(reg), true, timeout_us_);
     i2c_read_timeout_us(i2c_, device_address_, data_buffer_.data(), n_bytes, false, timeout_us_);
 }
 
@@ -53,8 +63,10 @@ void I2CDevice::read_register(uint8_t reg, size_t n_bytes)
  */
 void I2CDevice::write_register(uint8_t reg, size_t n_bytes)
 {
-    std::vector<uint8_t> buffer(++n_bytes, 0);
+    unsigned reg_size = sizeof(reg);
+    std::vector<uint8_t>
+        buffer(n_bytes + reg_size, 0u);
     buffer[0] = reg;
-    std::copy(data_buffer_.begin(), data_buffer_.begin() + n_bytes - 1, buffer.begin() + 1);
+    std::copy(data_buffer_.begin(), data_buffer_.begin() + n_bytes++, buffer.begin() + reg_size);
     i2c_write_timeout_us(i2c_, device_address_, buffer.data(), n_bytes, false, timeout_us_);
 }

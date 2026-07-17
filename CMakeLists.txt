@@ -55,9 +55,10 @@ ${LIBDIR}/ds3231/ds3231_registers.h
 
 ${LIBDIR}/i2c/i2c_entity.h
 ${LIBDIR}/i2c/i2c_entity.cpp
-
 ${LIBDIR}/i2c/i2c_device.h
 ${LIBDIR}/i2c/i2c_device.cpp
+${LIBDIR}/i2c/i2c_eeprom_device.h
+${LIBDIR}/i2c/i2c_eeprom_device.cpp
 
 ${LIBDIR}/ssd1315/ssd1315.h
 ${LIBDIR}/ssd1315/ssd1315.cpp

@@ -9,7 +9,7 @@ namespace AHT10
   class AHT10 : public I2CDevice
   {
   public:
-    AHT10(i2c_inst_t *i2c) : I2CDevice(i2c, REGISTERS::ADDR, 6u, 20000)
+    AHT10(i2c_inst_t *i2c) : I2CDevice(i2c, REGISTERS::DEVICE_ADDRESS, 6u, 20000)
     {
     }
 
